@@ -72,7 +72,7 @@ CMD [ "python3", "-m", "flask", "run", "--host=0.0.0.0" ]
 ```
 
 ## Disclaimer
-This application is for demonstration purposes only and should only be used on a local intranet. Some features may not have actual functionality and are included for illustrative purposes. Their are also features that are not easily changed and could take some time for others to try to replicate in their own use of this project.
+This application is for demonstration purposes only and should only be used on a local intranet. The creation of this application was not designed for general use and has specific features that would need redesigned for usable reproduction. Some features may not have actual functionality and are included for illustrative purposes. Their are also features that are not easily changed and could take some time for others to try to replicate in their own use of this project.
 
 ## Credits
 This application was developed using Flask and Flask-SocketIO. Special thanks to the Flask and Socket.IO communities for their contributions. [Morbid](https://github.com/Morbid1134) was the sole Front-end/Back-end developer. Majority of built-in tasks were procured and re-designed to fit this application by **thecomplexer** (unknown reference URL).
