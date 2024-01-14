@@ -7,34 +7,42 @@ This application is a web-based interface built using Flask and Flask-SocketIO. 
 - Docker installed on the host machine.
 - Docker daemon running.
 
-## Usage
-1. Clone the repository to your local machine and navigate to the project directory.
-    ```bash
-    git clone https://github.com/Morbid1134/Sim-Complex.git
-    cd Sim-Complex
-    ```
+## Instructions for Usage
 
-2. If you have already cloned the repository and want to update it, pull the latest changes:
-    ```bash
-    git pull origin main
-    ```
+1. Clone the repository to your local machine and navigate to the project directory:
 
-3. Build the Docker image using the provided Dockerfile. If you have already built the Docker image and want to update it, you can rebuild it with the same image name you gave it before:
-    ```bash
-    docker build -t your-image-name .
-    ```
-5. Run the Docker container:
-    ```bash
-    docker run -p 5000:5000 your-image-name
-    ```
-    or
-    ```bash
-    docker run -d -p 5000:5000 your-image-name
-    ```
-    If you want the docker container to run in the background instead of from the terminal .
-    You can adjust the first 5000 to any port you want. If you do then that is the port you should use in the URL.
+```bash
+git clone https://github.com/Morbid1134/Sim-Complex.git
+cd Sim-Complex
+```
 
-6. Access the application in your web browser at [http://localhost:5000](http://localhost:5000).
+2. If you have already cloned the repository and wish to update it with the latest changes, execute the following command:
+
+```bash
+git pull origin main
+```
+
+3. Build or rebuild the Docker image using the provided Dockerfile. Note: If you have previously built the Docker image and intend to update it, delete the previous container and image before rebuilding:
+
+```bash
+docker build -t your-image-name .
+```
+
+4. Execute the Docker container using the command below for foreground operation:
+
+```bash
+docker run -p 80:5000 your-image-name
+```
+
+Alternatively, for background execution:
+
+```bash
+docker run -d -p 80:5000 your-image-name
+```
+
+> Be sure to replace the `80` with your preferred port number. Use the updated port number in the URL. Only modify the first port number, as indicated by the `80:5000` format.
+
+5. Access the application in your web browser by navigating to [http://localhost/](http://localhost/).
 
 ## Dockerfile
 ```Dockerfile

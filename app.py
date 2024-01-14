@@ -52,7 +52,7 @@ terminal_output = ["Linux pi-hole 6.1.21-v7+ #1642 SMP Mon Apr  3 17:20:52 BST 2
 
 # Function to randomly select n tasks with no repeats
 def get_random_tasks(n):
-    ts = ["enduro", "task_2048", "loading", "maze", "osu", "bin_sorting", "frogger", "memory_pattern", "missle_command", "pong", "snake", "tetris", "typing_test"]
+    ts = ["enduro", "task_2048", "loading", "maze", "osu", "bin_sorting", "frogger", "memory_pattern", "missle_command", "pong", "snake", "tetris", "typing_test", "breakout"]
     
     # Shuffle the tasks to ensure randomness
     random.shuffle(ts)
@@ -349,6 +349,10 @@ def tetris():
 @app.route("/typing_test")
 def typing_test():
     return render_template("typing_test.html")
+
+@app.route("/breakout")
+def breakout():
+    return render_template("breakout.html")
 
 if __name__ == '__main__':
     initialize_cameras()
