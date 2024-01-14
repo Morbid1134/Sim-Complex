@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Memory Game</title>
+  <style>
+    body {
+      background-color: #808080; /* Gray background */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .game-container {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-gap: 10px;
+    }
+
+    .tile {
+      width: 100px;
+      height: 100px;
+      background-color: #3498db; /* Bright blue */
+      border-radius: 10px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    #score {
+      color: white;
+      font-size: 24px;
+      margin-top: 20px;
+    }
+  </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+<style>
+    #connection {
+    border: 5px solid red;
+    width: 80vw;
+    font-size: 5vw;
+    height: 5vh;
+    position: absolute;
+    bottom: 5vh; /* Positioned at the bottom */
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: red;
+    }
+</style>
+</head>
+<body>
+
+<div class="game-container" id="game-container"></div>
+<div id="score">Score: 0</div>
+<div id="connection">Not Connected</div>
+
+<script>
+
+  function gameWin() {
+      alert("You WIN!")
+      socket.emit('taskComplete', 'memory_pattern');
+      const terminal_url = window.location.origin + "/terminal";
+      window.location.href = terminal_url;
+  }
+	
+  const patternLength = 4;
+  let playerPattern = [];
+  let gamePattern = [];
+  let gameStarted = false;
+  let score = 0;
+  const minScore = 8;
+  const maxScore = 17;
+  const randomScore = Math.floor(Math.random() * (maxScore - minScore + 1)) + minScore;
+
+  const scoreSound = new Audio('{{ url_for("static", filename="audio/memory_pattern_score.mp3") }}');
+  const yaySound = new Audio('{{ url_for("static", filename="audio/memory_pattern_victory.mp3") }}');
+
+  function initializeGame() {
+    gameStarted = false;
+    playerPattern = [];
+    gamePattern = generateRandomPattern(patternLength);
+    updateScore();
+    
+    setTimeout(() => {
+      playGamePattern();
+      gameStarted = true;
+    }, 2000); // 2-second delay before showing the sequence
+  }
+
+  function generateRandomPattern(length) {
+    const pattern = [];
+    for (let i = 0; i < length; i++) {
+      pattern.push(Math.floor(Math.random() * 9)); // Assuming 9 tiles in total
+    }
+    return pattern;
+  }
+
+  function playGamePattern() {
+    gamePattern.forEach((tileIndex, index) => {
+      setTimeout(() => {
+        highlightTile(tileIndex);
+      }, (index + 1) * 500); // Reduced delay after clicking on a square
+    });
+  }
+
+  function highlightTile(tileIndex) {
+    const tile = document.getElementById(`tile-${tileIndex}`);
+    tile.style.opacity = 0.7;
+    setTimeout(() => {
+      tile.style.opacity = 1;
+    }, 300);
+  }
+
+  function checkUserInput(tileIndex) {
+    if (gameStarted) {
+      playerPattern.push(tileIndex);
+      highlightTile(tileIndex);
+
+      if (playerPattern.length === patternLength) {
+        checkPattern();
+      }
+    }
+  }
+
+  function checkPattern() {
+    if (JSON.stringify(playerPattern) === JSON.stringify(gamePattern)) {
+      scoreSound.play();
+      score++;
+      updateScore();
+      playerPattern = [];
+
+      if (score === randomScore) {
+        yaySound.play();
+        updateScore(); // Display final score
+		gameWin();
+        setTimeout(() => {
+          score = 0; // Reset score for the next game
+          initializeGame();
+        }, 2000);
+      } else {
+        initializeGame();
+      }
+    } else {
+      score = 0; // Reset score on mistake
+      updateScore();
+      initializeGame();
+    }
+  }
+
+  function updateScore() {
+    document.getElementById('score').innerText = `Score: ${score}`;
+  }
+
+  // Creating game tiles dynamically
+  const gameContainer = document.getElementById('game-container');
+  for (let i = 0; i < 9; i++) {
+    const tile = document.createElement('div');
+    tile.className = 'tile';
+    tile.id = `tile-${i}`;
+    tile.addEventListener('click', () => checkUserInput(i));
+    gameContainer.appendChild(tile);
+  }
+
+  // Initialize the game
+  initializeGame();
+</script>
+<script>
+    const socket = io.connect(window.location.origin);
+    const status = document.getElementById('connection')
+
+    socket.on('connect', function() {
+        console.log('Connected to server');
+        status.innerHTML = "Connected";
+        status.style.color = "green";
+        status.style.borderColor = "green";
+    });
+
+    socket.on('disconnect', function() {
+        console.log('Disconnected from server');
+        status.innerHTML = "Not Connected";
+        status.style.color = "red";
+        status.style.borderColor = "red";
+    });
+    
+</script>
+
+</body>
+</html>

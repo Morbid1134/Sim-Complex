@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pong Game</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #222;
+        }
+
+        canvas {
+            border: 2px solid #fff;
+            border-radius: 5px;
+        }
+    </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+<style>
+    #connection {
+    border: 5px solid red;
+    width: 80vw;
+    font-size: 5vw;
+    height: 5vh;
+    position: absolute;
+    bottom: 5vh; /* Positioned at the bottom */
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: red;
+    }
+</style>
+</head>
+<body>
+    <canvas id="pongCanvas" width="800" height="400"></canvas>
+    <div id="connection">Not Connected</div>
+
+    <script>
+	
+    function gameWin() {
+        alert("You WIN!")
+        socket.emit('taskComplete', 'pong');
+        const terminal_url = window.location.origin + "/terminal";
+        window.location.href = terminal_url;
+    }
+	
+	// Add an <audio> element for background music
+	const backgroundMusic = new Audio('{{ url_for("static", filename="audio/pong_music.mp3") }}');
+	backgroundMusic.loop = true;
+	backgroundMusic.volume = 0.5; // Adjust the volume as needed
+
+	// Start playing the background music
+	backgroundMusic.play();
+
+	
+        // Paddle Class
+        class Paddle {
+            constructor(x, y, width, height, color, ySpeed) {
+                this.x = x;
+                this.y = y;
+                this.width = width;
+                this.height = height;
+                this.color = color;
+                this.ySpeed = ySpeed;
+            }
+
+            draw(context) {
+                context.fillStyle = this.color;
+                context.fillRect(this.x, this.y, this.width, this.height);
+            }
+
+            moveUp() {
+                this.y -= this.ySpeed;
+            }
+
+            moveDown() {
+                this.y += this.ySpeed;
+            }
+        }
+
+        // Ball Class
+        class Ball {
+            constructor(x, y, radius, color) {
+                this.x = x;
+                this.y = y;
+                this.radius = radius;
+                this.color = color;
+                this.xSpeed = 5;
+                this.ySpeed = 5;
+            }
+
+            draw(context) {
+                context.fillStyle = this.color;
+                context.beginPath();
+                context.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                context.fill();
+                context.closePath();
+            }
+        }
+
+        // Game Class
+        class PongGame {
+            constructor(canvasId) {
+                this.canvas = document.getElementById(canvasId);
+                this.context = this.canvas.getContext('2d');
+                this.player = new Paddle(20, this.canvas.height / 2 - 40, 15, 80, '#fff', 5);
+                this.computer = new Paddle(this.canvas.width - 35, this.canvas.height / 2 - 40, 15, 80, '#fff', 3.8);
+                this.ball = new Ball(this.canvas.width / 2, this.canvas.height / 2, 10, '#fff');
+                this.playerScore = 0;
+                this.computerScore = 0;
+            }
+
+            draw() {
+                this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+                // Draw player score
+                this.context.fillStyle = '#fff';
+                this.context.font = '20px Arial';
+                this.context.fillText(`Player: ${this.playerScore}`, 20, 30);
+
+                this.player.draw(this.context);
+                this.computer.draw(this.context);
+                this.ball.draw(this.context);
+            }
+
+            update() {
+                // Move player paddle
+                if (this.upPressed && this.player.y > 0) {
+                    this.player.moveUp();
+                }
+                if (this.downPressed && this.player.y + this.player.height < this.canvas.height) {
+                    this.player.moveDown();
+                }
+
+                // Move computer paddle (even less effective AI)
+                if (this.ball.y < this.computer.y + this.computer.height / 2 && this.computer.y > 0) {
+                    this.computer.moveUp();
+                }
+                if (this.ball.y > this.computer.y + this.computer.height / 2 && this.computer.y + this.computer.height < this.canvas.height) {
+                    this.computer.moveDown();
+                }
+
+                // Move the ball
+                this.ball.x += this.ball.xSpeed;
+                this.ball.y += this.ball.ySpeed;
+
+                // Ball and wall collision
+                if (this.ball.y - this.ball.radius < 0 || this.ball.y + this.ball.radius > this.canvas.height) {
+                    this.ball.ySpeed = -this.ball.ySpeed;
+                }
+
+                // Ball and paddles collision
+                if (this.ball.x - this.ball.radius < this.player.x + this.player.width &&
+                    this.ball.x + this.ball.radius > this.player.x &&
+                    this.ball.y > this.player.y &&
+                    this.ball.y < this.player.y + this.player.height) {
+                    this.ball.xSpeed = -this.ball.xSpeed;
+                }
+
+                if (this.ball.x - this.ball.radius < this.computer.x + this.computer.width &&
+                    this.ball.x + this.ball.radius > this.computer.x &&
+                    this.ball.y > this.computer.y &&
+                    this.ball.y < this.computer.y + this.computer.height) {
+                    this.ball.xSpeed = -this.ball.xSpeed;
+                }
+
+                // Scoring
+                if (this.ball.x - this.ball.radius < 0) {
+                    // Computer scores
+                    this.computerScore++;
+                    this.resetBall();
+                } else if (this.ball.x + this.ball.radius > this.canvas.width) {
+                    // Player scores
+                    this.playerScore++;
+                    this.resetBall();
+                }
+
+                // Check for win
+                if (this.playerScore >= 10) {
+                    gameWin();
+                    this.resetGame();
+                } else if (this.computerScore >= 20) {
+                    alert("Computer Wins!");
+                    this.resetGame();
+                }
+            }
+
+            resetBall() {
+                this.ball.x = this.canvas.width / 2;
+                this.ball.y = this.canvas.height / 2;
+                this.ball.xSpeed = 5;
+                this.ball.ySpeed = 5;
+            }
+
+            resetGame() {
+                this.playerScore = 0;
+                this.computerScore = 0;
+                this.resetBall();
+            }
+
+            handleKeyPress(event) {
+                switch (event.key) {
+                    case 'ArrowUp':
+                        this.upPressed = true;
+                        break;
+                    case 'ArrowDown':
+                        this.downPressed = true;
+                        break;
+                }
+            }
+
+            handleKeyRelease(event) {
+                switch (event.key) {
+                    case 'ArrowUp':
+                        this.upPressed = false;
+                        break;
+                    case 'ArrowDown':
+                        this.downPressed = false;
+                        break;
+                }
+            }
+
+            start() {
+                document.addEventListener('keydown', (event) => this.handleKeyPress(event));
+                document.addEventListener('keyup', (event) => this.handleKeyRelease(event));
+
+                const gameLoop = () => {
+                    this.update();
+                    this.draw();
+                    requestAnimationFrame(gameLoop);
+                };
+
+                gameLoop();
+            }
+        }
+
+        const pongGame = new PongGame('pongCanvas');
+        pongGame.start();
+    </script>
+<script>
+    const socket = io.connect(window.location.origin);
+    const status = document.getElementById('connection')
+
+    socket.on('connect', function() {
+        console.log('Connected to server');
+        status.innerHTML = "Connected";
+        status.style.color = "green";
+        status.style.borderColor = "green";
+    });
+
+    socket.on('disconnect', function() {
+        console.log('Disconnected from server');
+        status.innerHTML = "Not Connected";
+        status.style.color = "red";
+        status.style.borderColor = "red";
+    });
+    
+</script>
+
+</body>
+</html>

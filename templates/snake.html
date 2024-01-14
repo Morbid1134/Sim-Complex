@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Snake Game</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+
+    body {
+      background: #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    canvas {
+      border: 1px solid white;
+    }
+  </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+<style>
+    #connection {
+    border: 5px solid red;
+    width: 80vw;
+    font-size: 5vw;
+    height: 5vh;
+    position: absolute;
+    bottom: 5vh; /* Positioned at the bottom */
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: red;
+    }
+</style>
+</head>
+<body>
+  <canvas width="400" height="400" id="game"></canvas>
+  <audio id="eatSound" src="{{ url_for('static', filename='audio/snake_eat.mp3') }}"></audio>
+  <script>
+
+    function gameWin() {
+        alert("You WIN!")
+        socket.emit('taskComplete', 'snake');
+        const terminal_url = window.location.origin + "/terminal";
+        window.location.href = terminal_url;
+      }
+
+    var canvas = document.getElementById('game');
+    var context = canvas.getContext('2d');
+    var eatSound = document.getElementById('eatSound');
+
+    var grid = 16;
+    var count = 0;
+
+    var snake = {
+      x: 160,
+      y: 160,
+      dx: grid,
+      dy: 0,
+      cells: [],
+      maxCells: 4
+    };
+
+    var apple = {
+      x: 320,
+      y: 320
+    };
+
+    var score = 0;
+    var winningScore = Math.floor(Math.random() * (20 - 10 + 1)) + 10;
+
+    function getRandomInt(min, max) {
+      return Math.floor(Math.random() * (max - min)) + min;
+    }
+
+    function loop() {
+      requestAnimationFrame(loop);
+
+      if (++count < 8) {
+        return;
+      }
+
+      count = 0;
+      context.clearRect(0, 0, canvas.width, canvas.height);
+
+      snake.x += snake.dx;
+      snake.y += snake.dy;
+
+      if (snake.x < 0) {
+        snake.x = canvas.width - grid;
+      } else if (snake.x >= canvas.width) {
+        snake.x = 0;
+      }
+
+      if (snake.y < 0) {
+        snake.y = canvas.height - grid;
+      } else if (snake.y >= canvas.height) {
+        snake.y = 0;
+      }
+
+      snake.cells.unshift({ x: snake.x, y: snake.y });
+
+      if (snake.cells.length > snake.maxCells) {
+        snake.cells.pop();
+      }
+
+      context.fillStyle = '#FF6347'; // Tomato color for apple
+      context.fillRect(apple.x, apple.y, grid - 1, grid - 1);
+
+      context.fillStyle = '#32CD32'; // Lime color for snake
+      snake.cells.forEach(function (cell, index) {
+        context.fillRect(cell.x, cell.y, grid - 1, grid - 1);
+
+        if (cell.x === apple.x && cell.y === apple.y) {
+          snake.maxCells++;
+          score++;
+          eatSound.play(); // Play sound when the snake eats an apple
+
+          if (score === winningScore) {
+            gameFinish();
+          }
+
+          apple.x = getRandomInt(0, 25) * grid;
+          apple.y = getRandomInt(0, 25) * grid;
+        }
+
+        for (var i = index + 1; i < snake.cells.length; i++) {
+          if (cell.x === snake.cells[i].x && cell.y === snake.cells[i].y) {
+            resetGame();
+          }
+        }
+      });
+
+      document.getElementById('score').innerText = `Score: ${score}`;
+    }
+
+    function resetGame() {
+      snake.x = 160;
+      snake.y = 160;
+      snake.cells = [];
+      snake.maxCells = 4;
+      snake.dx = grid;
+      snake.dy = 0;
+      apple.x = getRandomInt(0, 25) * grid;
+      apple.y = getRandomInt(0, 25) * grid;
+      score = 0;
+      winningScore = Math.floor(Math.random() * (20 - 10 + 1)) + 10;
+      document.getElementById('score').innerText = `Score: ${score}`;
+    }
+
+    function gameFinish() {
+      gameWin();
+    }
+
+    document.addEventListener('keydown', function (e) {
+      if (e.which === 37 && snake.dx === 0) {
+        snake.dx = -grid;
+        snake.dy = 0;
+      } else if (e.which === 38 && snake.dy === 0) {
+        snake.dy = -grid;
+        snake.dx = 0;
+      } else if (e.which === 39 && snake.dx === 0) {
+        snake.dx = grid;
+        snake.dy = 0;
+      } else if (e.which === 40 && snake.dy === 0) {
+        snake.dy = grid;
+        snake.dx = 0;
+      }
+    });
+
+    requestAnimationFrame(loop);
+  </script>
+<script>
+    const socket = io.connect(window.location.origin);
+    const status = document.getElementById('connection')
+
+    socket.on('connect', function() {
+        console.log('Connected to server');
+        status.innerHTML = "Connected";
+        status.style.color = "green";
+        status.style.borderColor = "green";
+    });
+
+    socket.on('disconnect', function() {
+        console.log('Disconnected from server');
+        status.innerHTML = "Not Connected";
+        status.style.color = "red";
+        status.style.borderColor = "red";
+    });
+    
+</script>
+  <div id="score" style="color: white; font-size: 18px; margin-top: 10px;">Score: 0</div>
+  <div id="connection">Not Connected</div>
+</body>
+</html>

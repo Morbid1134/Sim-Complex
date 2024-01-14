@@ -4,6 +4,7 @@ from flask_socketio import SocketIO
 import json
 import random
 import re
+import time
 
 # Cameras IPs
 # Example: 10.0.0.198 -> 198
@@ -49,20 +50,22 @@ terminal_output = ["Linux pi-hole 6.1.21-v7+ #1642 SMP Mon Apr  3 17:20:52 BST 2
                    "Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent",
                    "permitted by applicable law.", "Last login: Sun Dec 17 12:12:06 2023 from 10.0.0.59"]
 
-# Function to randomly select a task based on predefined probabilities
-def get_task():
-    tasks = ["enduro", "task_2048", "loading", "maze", "osu"]
-    probability = [1, 0, 0, 0, 0]
-    chosen_item = random.choices(tasks, weights=probability, k=random.randint(0, 1000))
-    return chosen_item
+# Function to randomly select n tasks with no repeats
+def get_random_tasks(n):
+    ts = ["enduro", "task_2048", "loading", "maze", "osu", "bin_sorting", "frogger", "memory_pattern", "missle_command", "pong", "snake", "tetris", "typing_test"]
+    
+    # Shuffle the tasks to ensure randomness
+    random.shuffle(ts)
+    
+    # Select the first n tasks
+    chosen_tasks = ts[:n]
+    
+    return chosen_tasks
 
 # Initialize a dictionary to store tasks with their completion status
 global tasks
 tasks = {}
-for i in range(5):
-    # task = get_task()[0]
-    task_list = ["enduro", "task_2048", "loading", "maze", "osu"]
-    task = task_list[i]
+for task in get_random_tasks(8):
     tasks[str(task)] = 'Incomplete'
 
 # Initalize no selected tasks
@@ -144,6 +147,7 @@ def handle_task_completion(taskName):
         if task[1] != "Complete":
             allDone = False
     if allDone:
+        time.sleep(2)
         socketio.emit("allTasksCompleted")
     else:
         socketio.emit("taskCompleted")
@@ -313,6 +317,38 @@ def maze():
 @app.route("/osu")
 def osu():
     return render_template("osu.html")
+
+@app.route("/bin_sorting")
+def bin_sorting():
+    return render_template("bin_sorting.html")
+
+@app.route("/frogger")
+def frogger():
+    return render_template("frogger.html")
+
+@app.route("/memory_pattern")
+def memory_pattern():
+    return render_template("memory_pattern.html")
+
+@app.route("/missle_command")
+def missle_command():
+    return render_template("missle_command.html")
+
+@app.route("/pong")
+def pong():
+    return render_template("pong.html")
+
+@app.route("/snake")
+def snake():
+    return render_template("snake.html")
+
+@app.route("/tetris")
+def tetris():
+    return render_template("tetris.html")
+
+@app.route("/typing_test")
+def typing_test():
+    return render_template("typing_test.html")
 
 if __name__ == '__main__':
     initialize_cameras()
