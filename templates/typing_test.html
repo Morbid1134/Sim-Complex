@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typing Test Game</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        #text {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        #input {
+            font-size: 20px;
+            padding: 5px;
+            margin-top: 10px;
+            width: 300px;
+        }
+
+        #sentenceCounter {
+            margin-top: 20px;
+            font-size: 18px;
+            color: green;
+        }
+
+        .current-word {
+            color: red;
+        }
+
+        .previous-words {
+            color: grey;
+        }
+    </style><script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+<style>
+    #connection {
+    border: 5px solid red;
+    width: 80vw;
+    font-size: 5vw;
+    height: 5vh;
+    position: absolute;
+    bottom: 5vh; /* Positioned at the bottom */
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: red;
+    }
+</style>
+</head>
+<body>
+
+<div id="text"></div>
+
+<input type="text" id="input" placeholder="Start typing...">
+
+<div id="sentenceCounter">Sentences Completed: 0 / Target: 15</div>
+
+<audio id="victoryAudio" src="{{ url_for('static', filename='audio/typing_victory.mp3') }}"></audio>
+<div id="connection">Not Connected</div>
+
+<script>
+
+    function gameWin() {
+        document.getElementById('victoryAudio').play();
+        alert("You WIN!")
+        socket.emit('taskComplete', 'typing_test');
+        const terminal_url = window.location.origin + "/terminal";
+        window.location.href = terminal_url;
+    }
+
+    let textElement = document.getElementById('text');
+    let inputElement = document.getElementById('input');
+    let sentenceCounterElement = document.getElementById('sentenceCounter');
+
+    let sentences = [
+        "I love working at Marks Incorporated.",
+        "Every day at Marks brings new challenges and opportunities.",
+        "Loyalty to Marks is my commitment.",
+        "I find joy in contributing to the success of Marks.",
+        "Marks values its employees, and I value Marks.",
+        "Loving my work at Marks makes it a fulfilling journey.",
+        "I am dedicated to the growth and prosperity of Marks.",
+        "Marks is not just a workplace; it's my second home.",
+        "My loyalty to Marks is unwavering.",
+        "Marks is the best place to build a career.",
+        "The work environment at Marks is positive and encouraging.",
+        "I take pride in being a part of Marks family.",
+        "Loving my job at Marks makes it a pleasure to come to work.",
+        "Marks fosters a culture of continuous learning and improvement.",
+        "I am grateful for the opportunities Marks provides.",
+        "Marks recognizes and appreciates my contributions.",
+        "My loyalty to Marks is a testament to my dedication.",
+        "Marks inspires me to achieve excellence in my work.",
+        "I am committed to the success and growth of Marks.",
+        "Loving my work at Marks is a source of motivation.",
+        "Marks challenges me to reach new heights in my career.",
+        "Marks values loyalty, and I am loyal to Marks.",
+        "I find satisfaction and fulfillment in my work at Marks.",
+        "Marks provides a supportive and collaborative work environment.",
+        "Loving my job at Marks is the key to my professional success.",
+        "My loyalty to Marks is a reflection of my dedication and passion.",
+        "Marks encourages innovation and creativity in the workplace.",
+        "I am proud to be a part of the Marks team.",
+        // Add 10 more sentences expressing love for Marks Incorporated
+        "I cherish the camaraderie and teamwork at Marks.",
+        "My journey at Marks is filled with excitement and purpose.",
+        "Marks empowers me to excel in my role.",
+        "Loving my work at Marks is more than a job; it's a calling.",
+        "I appreciate the support and encouragement I receive at Marks.",
+        "Marks values diversity, and I feel valued as an individual.",
+        "Every achievement at Marks feels like a personal victory.",
+        "I am enthusiastic about contributing to Marks' success story.",
+        "Marks provides a platform for personal and professional growth.",
+        "Loving my work at Marks is a continuous journey of learning and development.",
+        // Add 10 more sentences expressing love for Marks Incorporated
+        "Marks is the epitome of a great workplace.",
+        "My dedication to Marks is fueled by passion and commitment.",
+        "I am honored to be a part of Marks' legacy.",
+        "Loving my job at Marks is a source of daily inspiration.",
+        "Marks' values align with my own, making it a perfect fit for me.",
+        "I am committed to upholding Marks' reputation for excellence.",
+        "Every day at Marks is an opportunity to make a meaningful impact.",
+        "I am thankful for the sense of purpose Marks provides me.",
+        "Marks' commitment to innovation motivates me to excel.",
+        "Loving my work at Marks is the key to a fulfilling and rewarding career.",
+        // Add 10 more sentences honoring Marks Incorporated
+        "Marks sets the gold standard for employee care and well-being.",
+        "I deeply appreciate the inclusive and welcoming culture at Marks.",
+        "Marks fosters an environment where everyone's voice is heard.",
+        "Working at Marks feels like being part of a big, supportive family.",
+        "The leadership at Marks exemplifies integrity and vision.",
+        "Marks' commitment to social responsibility aligns with my values.",
+        "I am grateful for the opportunities Marks provides for professional development.",
+        "Marks encourages a healthy work-life balance, enhancing my overall well-being.",
+        "I am proud to contribute to Marks' positive impact on the industry.",
+        "Loving my work at Marks is a privilege and an honor.",
+        // Add 6 additional specified sentences
+        "WOULDNT YOU DO ANYTHING FOR THEM",
+        "YOU ARE MY LIFE MARK WITHOUT YOU I AM NOTHING",
+        "BRING ME LIFE MARK YOU GIVE ME PURPOSE",
+        "ISNT THIS COMPANY GREAT!!!",
+        "WHERE ARE YOU MARK IM SEARCHING",
+        "DONT LIE TO ME I LOVE THIS",
+        // Add 1 sentence repeating "I LOVE IT HERE" four times
+        "I LOVE IT HERE I LOVE IT HERE I LOVE IT HERE I LOVE IT HERE"
+    ];
+
+    let currentSentenceIndex = 0;
+    let sentencesCompleted = 0;
+    let currentSentence;
+    let winningSentenceCount = Math.floor(Math.random() * (35 - 15 + 1)) + 15; // Initialize once when the page is loaded
+
+    function getRandomSentence() {
+        return sentences[Math.floor(Math.random() * sentences.length)].split(' ');
+    }
+
+    function initializeGame() {
+        currentSentence = getRandomSentence();
+        updateText();
+        updateSentenceCounter();
+    }
+
+    initializeGame();
+
+    inputElement.addEventListener('input', function () {
+        let inputValue = inputElement.value.trim();
+        let currentWord = currentSentence[0];
+
+        if (inputValue === currentWord) {
+            inputElement.value = ''; // Clear the input field
+            currentSentence.shift();
+
+            if (currentSentence.length === 0) {
+                currentSentenceIndex++;
+                sentencesCompleted++;
+                if (sentencesCompleted === winningSentenceCount) {
+                    gameWin();
+                } else {
+                    initializeGame();
+                }
+            }
+
+            updateText();
+        }
+    });
+
+    function updateText() {
+        let highlightedText = currentSentence.map((word, index) => {
+            if (index === 0) {
+                return `<span class="current-word">${word}</span>`;
+            } else {
+                return `<span class="previous-words">${word}</span>`;
+            }
+        }).join(' ');
+
+        textElement.innerHTML = highlightedText;
+    }
+
+    function updateSentenceCounter() {
+        sentenceCounterElement.textContent = `Sentences Completed: ${sentencesCompleted} / Target: ${winningSentenceCount}`;
+    }
+
+    function showResult(message) {
+        alert(message);
+        updateSentenceCounter();
+    }
+</script>
+<script>
+    const socket = io.connect(window.location.origin);
+    const status = document.getElementById('connection')
+
+    socket.on('connect', function() {
+        console.log('Connected to server');
+        status.innerHTML = "Connected";
+        status.style.color = "green";
+        status.style.borderColor = "green";
+    });
+
+    socket.on('disconnect', function() {
+        console.log('Disconnected from server');
+        status.innerHTML = "Not Connected";
+        status.style.color = "red";
+        status.style.borderColor = "red";
+    });
+</script>
+
+
+
+</body>
+</html>

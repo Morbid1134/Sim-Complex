@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .bin {
+            width: 80px;
+            height: 80px;
+            border: 2px solid #000;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ball {
+            width: 50px;
+            height: 50px;
+            background-color: #3498db;
+            color: #fff;
+            text-align: center;
+            line-height: 50px;
+            cursor: move;
+        }
+
+        .bin.hovered {
+            border-color: #27ae60;
+        }
+
+        #score {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+    <title>Drag and Drop Game</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+    <style>
+        #connection {
+        border: 5px solid red;
+        width: 80vw;
+        font-size: 5vw;
+        height: 5vh;
+        position: absolute;
+        bottom: 5vh; /* Positioned at the bottom */
+        left: 50%;
+        transform: translateX(-50%);
+        border-radius: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: red;
+        }
+    </style>
+
+</head>
+<body>
+    <div class="game-container" id="game-container">
+        <div id="score">Score: 0 / 160</div>
+        <div class="bin" data-number="1"></div>
+        <div class="bin" data-number="2"></div>
+        <div class="bin" data-number="3"></div>
+        <div class="ball" id="ball" draggable="true" data-number="1">1</div>
+    </div>
+    
+    <div id="connection">Not Connected</div>
+    <script>
+		function gameWin() {
+            alert("You WIN!")
+            socket.emit('taskComplete', 'bin_sorting');
+            const terminal_url = window.location.origin + "/terminal";
+            window.location.href = terminal_url;
+		}
+        document.addEventListener("DOMContentLoaded", function () {
+            const gameContainer = document.getElementById("game-container");
+            const scoreElement = document.getElementById("score");
+            const ballElement = document.getElementById("ball");
+            let score = 0;
+            let previousBin = -1;
+
+            // Function to generate a random number between 1 and 3, excluding the previous bin
+            function generateRandomNumber() {
+                let randomNum;
+                do {
+                    randomNum = Math.floor(Math.random() * 3) + 1;
+                } while (randomNum === previousBin);
+                return randomNum;
+            }
+
+            // Function to create a new ball with a random number
+            function createNewBall() {
+                const randomNum = generateRandomNumber();
+                ballElement.dataset.number = randomNum;
+                ballElement.textContent = randomNum;
+                previousBin = randomNum; // Update the previous bin
+            }
+
+            // Event listeners for drag-and-drop
+            function dragStart(e) {
+                e.dataTransfer.setData("text", e.target.dataset.number);
+            }
+
+            gameContainer.addEventListener("dragover", dragOver);
+            gameContainer.addEventListener("dragenter", dragEnter);
+            gameContainer.addEventListener("dragleave", dragLeave);
+            gameContainer.addEventListener("drop", drop);
+
+            function dragOver(e) {
+                e.preventDefault();
+            }
+
+            function dragEnter(e) {
+                e.preventDefault();
+                if (e.target.classList.contains("bin")) {
+                    e.target.classList.add("hovered");
+                }
+            }
+
+            function dragLeave(e) {
+                if (e.target.classList.contains("bin")) {
+                    e.target.classList.remove("hovered");
+                }
+            }
+
+            function drop(e) {
+                e.preventDefault();
+                const data = e.dataTransfer.getData("text");
+                const targetBin = e.target.closest(".bin");
+
+                if (targetBin) {
+                    if (targetBin.dataset.number === data) {
+                        targetBin.appendChild(ballElement);
+                        targetBin.classList.remove("hovered");
+                        updateScore(1);
+                        createNewBall();
+                    } else {
+                        alert("Wrong bin! -5 points");
+                        updateScore(-5);
+                    }
+                }
+            }
+
+            function updateScore(points) {
+                score += points;
+                scoreElement.textContent = "Score: " + score + " / 160";
+
+                if (score >= 160) {
+                    gameWin();
+                    resetGame();
+                }
+            }
+
+            function resetGame() {
+                score = 0;
+                scoreElement.textContent = "Score: " + score + " / 160";
+                previousBin = -1; // Reset the previous bin
+            }
+
+            // Initial ball creation
+            createNewBall();
+            ballElement.addEventListener("dragstart", dragStart);
+        });
+    </script>
+    
+    <script>
+        const socket = io.connect(window.location.origin);
+        const status = document.getElementById('connection')
+
+        socket.on('connect', function() {
+            console.log('Connected to server');
+            status.innerHTML = "Connected";
+            status.style.color = "green";
+            status.style.borderColor = "green";
+        });
+
+        socket.on('disconnect', function() {
+            console.log('Disconnected from server');
+            status.innerHTML = "Not Connected";
+            status.style.color = "red";
+            status.style.borderColor = "red";
+        });
+    </script>
+</body>
+</html>
