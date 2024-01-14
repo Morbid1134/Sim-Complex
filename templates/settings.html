@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #343a40;
+            color: #ffffff;
+        }
+
+        .container {
+            margin-top: 50px;
+        }
+
+        h1 {
+            color: #007bff;
+        }
+
+        label {
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .form-control {
+            margin-bottom: 15px;
+            background-color: #495057;
+            color: #ffffff;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">IP Settings</h1>
+        <form method="post">
+            <div class="form-group">
+                <label for="1">Front Door:</label>
+                <input class="form-control" name="1" value="{{ IP['1'] }}">
+            </div>
+            <div class="form-group">
+                <label for="2">Kitchen:</label>
+                <input class="form-control" name="2" value="{{ IP['2'] }}">
+            </div>
+            <div class="form-group">
+                <label for="3">Main Hall:</label>
+                <input class="form-control" name="3" value="{{ IP['3'] }}">
+            </div>
+            <div class="form-group">
+                <label for="4">Outside Closet:</label>
+                <input class="form-control" name="4" value="{{ IP['4'] }}">
+            </div>
+            <div class="form-group">
+                <label for="5">Inside Closet:</label>
+                <input class="form-control" name="5" value="{{ IP['5'] }}">
+            </div>
+            <div class="form-group">
+                <label for="6">Outside Storage:</label>
+                <input class="form-control" name="6" value="{{ IP['6'] }}">
+            </div>
+            <div class="form-group">
+                <label for="7">Inside Storage:</label>
+                <input class="form-control" name="7" value="{{ IP['7'] }}">
+            </div>
+            <div class="form-group">
+                <label for="8">South Room:</label>
+                <input class="form-control" name="8" value="{{ IP['8'] }}">
+            </div>
+            <div class="form-group">
+                <label for="9">North Room:</label>
+                <input class="form-control" name="9" value="{{ IP['9'] }}">
+            </div>
+
+            <button type="submit" class="btn btn-primary">Save</button>
+        </form>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+</html>

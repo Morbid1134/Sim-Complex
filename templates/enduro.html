@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>CodePen - Enduro - Atari - Html5 Game</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/enduro.css') }}">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prefixfree/1.0.7/prefixfree.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+<style>
+  
+#game-container {
+  width: 676px;  /* Adjust as necessary */
+  height: 480px; /* Adjust as necessary */
+  position: relative;
+  background-image: url("{{ url_for('static', filename='img/tv.png') }}");
+  background-size: cover; /* This will make sure the TV image covers the game-container */
+}
+  </style>
+</head>
+<body>
+<div id="game-container">
+  <div id="game">
+    <div id="sky"></div>
+    <div id="mountains">
+      <div class="mountain"></div>
+      <div class="mountain"></div>
+      <div class="mountain"></div>
+      <div class="mountain"></div>
+    </div>
+    <div id="terrain"></div>
+    <div id="fog" class="hidden"></div>
+    <canvas id="road"></canvas>
+    <div id="cars"></div>
+    <div id="car" class="player car"></div>
+    <div id="ui">
+      <div id="panel">
+        <div id="km" style="border-radius: 10px 0 0 10px;"><a>Position</a><a class="hidden"></a></div>
+        <div id="lap" class="hidden"><a>0</a></div>
+        <div id="km"style="border-radius: 0 10px 10px 0;"><a></a><div id="position"><a></a><a>1</a><a>0</a><a>0</a><a></div><a></a></div>
+      </div>
+    </div>
+  </div>
+  <div id="buttons-bg">
+  </div>
+  <div id="buttons">
+    <p class="hidden">
+      <button id="left"></button>
+      <button id="up"></button>
+      <button id="right"></button>
+    </p>
+    <p><button id="click" class="hidden"></button></p>
+  </div>
+</div>
+<div id="connection">Not Connected</div>
+  <script  src="{{ url_for('static', filename='js/enduro.js') }}"></script>
+  <script>
+    const connection = document.getElementById('connection');
+    const socket = io.connect(window.location.origin);
+    socket.on('connect', function() {
+            console.log('Connected to server');
+            connection.innerHTML = "Connected";
+            connection.style.color = "green";
+            connection.style.borderColor = "green";
+        });
+        
+        socket.on('disconnect', function() {
+            console.log('Disconnected from server');
+            connection.innerHTML = "Not Connected";
+            connection.style.color = "red";
+            connection.style.borderColor = "red";
+        });
+    function gameOver() {
+      socket.emit('taskComplete', 'enduro');
+      startGame();
+      const terminal_url = window.location.origin + "/terminal";
+      window.location.href = terminal_url;
+    }
+    window.addEventListener('load', function () {
+      startGame();
+    })
+  </script>
+</body>
+</html>

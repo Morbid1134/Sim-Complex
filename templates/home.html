@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+        <title>Character Type</title>
+    </head>
+    <body>
+        <script src="{{ url_for('static', filename='js/home.js') }}"></script>
+        <div id="blob"></div>
+        <div id="blob2"></div>
+        <div id="blur"></div>
+        <div id="card" onclick="location.href='{{ url_for('boot') }}';">
+            <h1>Guard</h1>
+            <img src="{{ url_for('static', filename='img/help_wanted.jpg') }}"/>
+        </div>
+        <div id="card" onclick="location.href='{{ url_for('animatronics') }}';">
+            <h1>Animatronic</h1>
+            <img src="{{ url_for('static', filename='img/animatronics.jpg') }}"/>
+        </div>
+    </body>
+</html>

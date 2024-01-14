@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maze Escape Game</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #2c3e50;
+            overflow: hidden;
+        }
+
+        canvas {
+            border: 2px solid #ecf0f1;
+            background-color: #34495e;
+        }
+
+        #timer, #points, #win-points {
+            color: #ecf0f1;
+            font-size: 20px;
+            position: absolute;
+        }
+
+        #timer {
+            top: 10px;
+            right: 10px;
+        }
+
+        #points {
+            top: 40px;
+            right: 10px;
+        }
+
+        #win-points {
+            top: 70px;
+            right: 10px;
+        }
+        #connection {
+    border: 1px solid red;
+    width: 250px;
+    height: 50px;
+    position: absolute;
+    bottom:0;
+    border-radius: 10px;
+    display:flex;
+    align-items: center;
+    justify-content: center;
+    color: red;
+    z-index: -1;
+    margin:0;
+    padding:0;
+    margin-bottom: 10px;
+  }
+        /* Your existing CSS styles */
+    </style>
+</head>
+<body>
+
+<canvas id="maze-canvas" width="800" height="800"></canvas>
+
+<div id="timer">Time left: 2:00</div>
+<div id="points">Points: 0</div>
+<div id="win-points">Win Points: 0</div>
+
+<div id="connection">Not Connected</div>
+<script>
+        const connection = document.getElementById('connection');
+        const socket = io.connect(window.location.origin);
+        socket.on('connect', function() {
+                console.log('Connected to server');
+                connection.innerHTML = "Connected";
+                connection.style.color = "green";
+                connection.style.borderColor = "green";
+        });
+        
+        socket.on('disconnect', function() {
+            console.log('Disconnected from server');
+            connection.innerHTML = "Not Connected";
+            connection.style.color = "red";
+            connection.style.borderColor = "red";
+        });
+	function gameWin() {
+            socket.emit('taskComplete', 'maze');
+            const terminal_url = window.location.origin + "/terminal";
+            window.location.href = terminal_url;
+	}
+	function gameLost() {
+            const terminal_url = window.location.origin + "/terminal";
+            window.location.href = terminal_url;
+	}
+
+    const canvas = document.getElementById('maze-canvas');
+    const ctx = canvas.getContext('2d');
+    const timerElement = document.getElementById('timer');
+    const pointsElement = document.getElementById('points');
+    const winPointsElement = document.getElementById('win-points');
+
+    const mazeSize = 20;
+    const cellSize = 40;
+    const timerDuration = 120; // 2 minutes in seconds
+
+    let maze;
+    let playerPosition;
+    let escapePosition;
+    let points;
+    let winPoints;
+    let timer;
+    let timerInterval;
+
+    function initializeGame() {
+        playerPosition = { x: 0, y: 0 };
+        points = 0;
+        timer = timerDuration;
+        generateMaze();
+        renderGameElements();
+        updatePoints();
+        updateWinPoints();
+        setupEventListeners();
+        startTimer();
+    }
+
+    function generateMaze() {
+        maze = [];
+        for (let i = 0; i < mazeSize; i++) {
+            for (let j = 0; j < mazeSize; j++) {
+                maze.push({ x: j, y: i });
+            }
+        }
+        escapePosition = {
+            x: Math.floor(Math.random() * mazeSize),
+            y: Math.floor(Math.random() * mazeSize)
+        };
+        winPoints = Math.floor(Math.random() * (50 - 30 + 1)) + 30;
+    }
+
+    function renderGameElements() {
+        renderMaze();
+        renderPlayer();
+    }
+
+    function renderMaze() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        maze.forEach(cell => {
+            ctx.fillStyle = '#6C3483';
+            ctx.fillRect(cell.x * cellSize, cell.y * cellSize, cellSize, cellSize);
+
+            if (cell.x === escapePosition.x && cell.y === escapePosition.y) {
+                ctx.fillStyle = '#28a745';
+                ctx.fillRect(cell.x * cellSize, cell.y * cellSize, cellSize, cellSize);
+            }
+        });
+    }
+
+    function renderPlayer() {
+        ctx.fillStyle = '#FFD700';
+        ctx.fillRect(playerPosition.x * cellSize, playerPosition.y * cellSize, cellSize, cellSize);
+    }
+
+    function updatePoints() {
+        pointsElement.innerText = `Points: ${points}`;
+    }
+
+    function updateWinPoints() {
+        winPointsElement.innerText = `Win Points: ${winPoints}`;
+    }
+
+    function setupEventListeners() {
+        document.addEventListener('keydown', handleKeyPress);
+    }
+
+    function handleKeyPress(event) {
+        switch (event.key) {
+            case 'ArrowUp':
+                if (playerPosition.y > 0) {
+                    playerPosition.y--;
+                }
+                break;
+            case 'ArrowDown':
+                if (playerPosition.y < mazeSize - 1) {
+                    playerPosition.y++;
+                }
+                break;
+            case 'ArrowLeft':
+                if (playerPosition.x > 0) {
+                    playerPosition.x--;
+                }
+                break;
+            case 'ArrowRight':
+                if (playerPosition.x < mazeSize - 1) {
+                    playerPosition.x++;
+                }
+                break;
+        }
+
+        checkWinCondition();
+        renderGameElements();
+    }
+
+    function checkWinCondition() {
+        if (playerPosition.x === escapePosition.x && playerPosition.y === escapePosition.y) {
+            points++;
+            updatePoints();
+
+            if (points === winPoints) {
+                clearInterval(timerInterval);
+                alert('Congratulations! You won!');
+				gameWin();
+            } else {
+                escapePosition = {
+                    x: Math.floor(Math.random() * mazeSize),
+                    y: Math.floor(Math.random() * mazeSize)
+                };
+                updateWinPoints();
+            }
+        }
+    }
+
+    function startTimer() {
+        timerInterval = setInterval(function () {
+            timer--;
+            updateTimer();
+
+            if (timer === 0) {
+                clearInterval(timerInterval);
+                alert('Time is up! You lose.');
+				gameLost();
+            }
+        }, 1000);
+    }
+
+    function updateTimer() {
+        const minutes = Math.floor(timer / 60);
+        const seconds = timer % 60;
+        timerElement.innerText = `Time left: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+    }
+
+    // Start the game
+    initializeGame();
+</script>
+
+</body>
+</html>

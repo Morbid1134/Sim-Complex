@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/animatronics.css') }}">
+        <title>Character Type</title>
+    </head>
+    <body style="background: url('{{ url_for('static', filename='img/ballpit.jpg') }}') no-repeat center center fixed; background-size: auto 100%;">
+        <script src="{{ url_for('static', filename='js/animatronics.js') }}"></script>
+        <div id="blur">
+        <div id="card" onclick="location.href='{{ url_for('bonny') }}';">
+            <img src="{{ url_for('static', filename='img/bonny.jpg') }}"/>
+        </div>
+        <div id="card" onclick="location.href='{{ url_for('freddy') }}';">
+            <img src="{{ url_for('static', filename='img/freddy.jpg') }}"/>
+        </div>
+        <div id="card" onclick="location.href='{{ url_for('chica') }}';">
+            <img src="{{ url_for('static', filename='img/chica.jpg') }}"/>
+        </div></div>
+    </body>
+</html>

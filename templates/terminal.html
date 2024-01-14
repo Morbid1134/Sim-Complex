@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Linux Terminal</title>
+      <link href="https://cdn.jsdelivr.net/npm/remixicon@4.0.0/fonts/remixicon.css" rel="stylesheet"/>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+      <link rel="stylesheet" href="{{ url_for('static', filename='css/terminal.css') }}">
+      <script src="{{ url_for('static', filename='js/terminal.js') }}"></script>
+  </head>
+  <body>
+      <div id="terminal">
+        <div id="connection">Not Connected</div>
+        <span id="screen">
+        {% autoescape false %}
+          {% for i in range(0, len) %}
+            {{ terminal[i] }}<br>
+          {% endfor %}
+        {% endautoescape %}
+        </span>
+        <label for="hostname"><span class="green">admin@security:</span><span class="blue">~ $</span></label>
+        <input type="text" id="input" name="user_input" onfocus="this.value=''" autofocus onkeydown="checkEnter(event)">
+        <div id="camera-container" class="camera-container">
+          <button id="button" onclick="toggleCamera()">
+            <i class="ri-camera-3-line"></i>
+          </button>
+          <div id="camera-div"><img id="camera" src="" onerror="reloadCamera();"/></div>
+        </div>
+        <div id="cc2" class="camera-container">
+          <div id="map-container">
+            <div id="map">
+              <img id='map-img' src="{{ url_for('static', filename='img/Map1.png') }}"/>
+              <div id="camera1" onclick="newCamera(1)"></div>
+              <div id="camera2" onclick="newCamera(2)"></div>
+              <div id="camera3" onclick="newCamera(3)"></div>
+              <div id="camera4" onclick="newCamera(4)"></div>
+              <div id="camera5" onclick="newCamera(5)"></div>
+              <div id="camera6" onclick="newCamera(6)"></div>
+              <div id="camera7" onclick="newCamera(7)"></div>
+              <div id="camera8" onclick="newCamera(8)"></div>
+              <div id="camera9" onclick="newCamera(9)"></div>
+            </div>
+          </div>
+        </div>
+        <div id="camerabg">
+        </div>
+      </div>
+      <script>
+        const status = document.getElementById('connection');
+        var ip = ""
+        newCamera(1);
+        socket.on('connect', function() {
+            console.log('Connected to server');
+            status.innerHTML = "Connected";
+            status.style.color = "green";
+            status.style.borderColor = "green";
+        });
+        
+        socket.on('disconnect', function() {
+            console.log('Disconnected from server');
+            status.innerHTML = "Not Connected";
+            status.style.color = "red";
+            status.style.borderColor = "red";
+        });
+        function checkEnter(event) {
+            if (event.keyCode === 13) { // Check if Enter key is pressed
+              const inputValue = document.getElementById('input').value; // Get the value of the input field
+              socket.emit('terminalInput', inputValue);
+              document.getElementById('input').value = "";
+            }
+        }
+
+        socket.on('terminalOutput', function(output) {
+            const screenElement = document.getElementById('screen');
+            screenElement.innerHTML = output.join('<br>') + "<br>";
+        });
+
+        socket.on('redirect', function(url) {
+          socket.emit('terminalInput', 'clear')
+            window.location.href = url;
+        });
+
+        socket.on('currentCamera', function(cip) {
+          ip = cip
+          const camera = document.getElementById('camera');
+          var url = `${ip}`
+          camera.src = url;
+        });
+
+        function reloadCamera(){
+          const camera = document.getElementById('camera');
+          camera.src = `${ip}`
+        }
+        function newCamera(number) {
+
+            // Select the <img> element using its id
+            const imgElement = document.getElementById('map-img');
+            imgElement.src = `{{ url_for('static', filename='img') }}/Map${number}.png`
+            socket.emit('newCamera', number); // Emit the socket event with the provided number
+        }
+        
+        socket.on('cameraOff', function() {
+    // Assuming you have an image with id "camera"
+    const imageElement = document.getElementById('camera');
+
+    // Create video element
+    const videoElement = document.createElement('video');
+    videoElement.src = '{{ url_for("static", filename="video/static.mp4") }}'; // Set your video path
+    videoElement.setAttribute('id', 'videoElement');
+    videoElement.autoplay = true;
+    videoElement.muted = false;
+    videoElement.loop = true;
+
+    // Create a div to contain the video
+    const videoContainer = document.createElement('div');
+    videoContainer.style.position = 'absolute';
+    videoContainer.style.top = `${imageElement.offsetTop}px`;
+    videoContainer.style.left = `${imageElement.offsetLeft}px`;
+    videoContainer.style.width = `${imageElement.offsetWidth}px`;
+    videoContainer.style.height = `${imageElement.offsetHeight}px`;
+    videoContainer.style.top = `${imageElement.offsetTop}px`;
+    videoContainer.style.zIndex = '5';
+
+    // Set dimensions for videoElement to cover the div
+    videoElement.style.width = '100%';
+    videoElement.style.height = '100%';
+    videoElement.style.objectFit = 'cover'; // Ensures video covers the div without distorting
+
+    // Append videoElement to videoContainer
+    videoContainer.appendChild(videoElement);
+
+    // Append videoContainer to the same parent as imageElement
+    imageElement.parentElement.appendChild(videoContainer);
+});
+
+
+        socket.on('cameraOn', function() {
+            // Assuming you have an image with id "imageElement" and video element id "videoElement"
+            const imageElement = document.getElementById('camera');
+            const videoElement = document.getElementById('videoElement');
+
+            if (videoElement) {
+                // Remove video element from DOM
+                videoElement.parentNode.removeChild(videoElement);
+            }
+        });
+        const game_over = new Audio('{{ url_for("static", filename="audio/Game_Over.mp3") }}');
+
+        socket.on('allTasksCompleted', function() {
+            game_over.play();
+            setTimeout(function() {
+                    const terminal_url = window.location.origin;
+                    window.location.href = terminal_url;
+            }, game_over.duration * 1000); // Convert audio duration to milliseconds
+        });
+
+    </script>
+  </body>
+</html>

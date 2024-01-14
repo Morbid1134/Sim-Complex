@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Freddy</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/freddy.css') }}">
+</head>
+<body>
+    <div class="content-container">
+        <h1>Freddy</h1>
+        <div id="countdown" onclick="startTimer()">
+            <span id="minutes">00</span> : <span id="seconds">00</span>
+        </div>
+        <div id="connection">Not Connected</div>
+    </div>
+
+    <script>
+let timerInterval;
+let isTimerRunning = false;
+
+function startTimer(duration, callback) {
+    if (!isTimerRunning) {
+        isTimerRunning = true;
+        let totalSeconds = duration;
+
+        let currentMinutes = Math.floor(totalSeconds / 60);
+        let currentSeconds = totalSeconds % 60;
+
+        updateDisplay(currentMinutes, currentSeconds);
+
+        timerInterval = setInterval(function() {
+            if (totalSeconds <= 0) {
+                clearInterval(timerInterval);
+                isTimerRunning = false;
+                if (callback) { // Check if a callback function is provided
+                    callback();
+                }
+            } else {
+                totalSeconds--;
+                currentMinutes = Math.floor(totalSeconds / 60);
+                currentSeconds = totalSeconds % 60;
+                updateDisplay(currentMinutes, currentSeconds);
+            }
+        }, 1000);
+    }
+}
+
+function updateDisplay(minutes, seconds) {
+    document.getElementById("minutes").innerText = String(minutes).padStart(2, "0");
+    document.getElementById("seconds").innerText = String(seconds).padStart(2, "0");
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const countdown = document.getElementById("countdown");
+
+    // Mouse events
+    countdown.addEventListener('mousedown', handleStart);
+    countdown.addEventListener('mouseup', handleEnd);
+    countdown.addEventListener('mouseleave', handleEnd);
+
+    // Touch events
+    countdown.addEventListener('touchstart', handleStart, { passive: true });
+    countdown.addEventListener('touchend', handleEnd, { passive: true });
+    countdown.addEventListener('touchcancel', handleEnd);
+
+    function handleStart() {
+        countdown.classList.add('active');
+    }
+
+    function handleEnd() {
+        countdown.classList.remove('active');
+        if (!isTimerRunning) {
+            startTimer(10, pingEnd);
+        }
+    }
+});
+
+const socket = io.connect(window.location.origin);
+const status = document.getElementById('connection')
+
+socket.on('connect', function() {
+    console.log('Connected to server');
+    status.innerHTML = "Connected";
+    status.style.color = "green";
+    status.style.borderColor = "green";
+});
+
+socket.on('disconnect', function() {
+    console.log('Disconnected from server');
+    status.innerHTML = "Not Connected";
+    status.style.color = "red";
+    status.style.borderColor = "red";
+});
+
+const move_audio = new Audio('{{ url_for("static", filename="audio/Move.mp3") }}');
+const stop_audio = new Audio('{{ url_for("static", filename="audio/Stop.mp3") }}');
+const move_twice_audio = new Audio('{{ url_for("static", filename="audio/move_two_times.mp3") }}');
+const task_complete = new Audio('{{ url_for("static", filename="audio/CompletedTask.mp3") }}');
+const game_over = new Audio('{{ url_for("static", filename="audio/Game_Over.mp3") }}');
+
+socket.on('taskCompleted', function() {
+    task_complete.play()
+});
+
+socket.on('allTasksCompleted', function() {
+    game_over.play();
+    setTimeout(function() {
+            const terminal_url = window.location.origin;
+            window.location.href = terminal_url;
+    }, game_over.duration * 1000); // Convert audio duration to milliseconds
+});
+
+function playRandomAudio() {
+    const randomIndex = Math.random() < 0.5 ? 0 : 1; // Randomly selects 0 or 1
+    const audios = [move_audio, move_twice_audio];
+    audios[randomIndex].play();
+}
+
+function pingEnd() {
+    socket.emit('pingEnd');
+    startTimer(10, pingStart);
+    const randomIndex = Math.random() < 0.5 ? 0 : 1; // Randomly selects 0 or 1
+    const audios = [move_audio, move_twice_audio];
+    audios[randomIndex].play();
+}
+
+function pingStart() {
+    socket.emit('pingStart');
+    startTimer(randomInt(35, 60), pingEnd);
+    stop_audio.play()
+}
+
+function randomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+        
+</script>
+</body>
+</html>

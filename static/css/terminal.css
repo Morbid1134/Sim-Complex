@@ -1,0 +1,205 @@
+body {
+    background-color: #0c0c0c;
+    color: white;
+    font-family: 'Courier New', monospace;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+#terminal {
+    padding: 20px;
+    padding-bottom: 0;
+    height: 100%;
+    overflow: auto;
+    border: 0px solid #00ff00; /* Green border for visibility */
+}
+
+#input-container {
+    display: flex;
+}
+
+input {
+    padding-top:0;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: white;
+    font-family: inherit;
+    flex-grow: 1;
+}
+
+.green {
+    color: #319b2c;
+}
+
+.blue {
+    color: #4b6fe1;
+}
+
+#container {
+    position: relative;
+}
+
+.camera-container {
+    position: absolute;
+    width: 90%;
+    height: 98%;
+    background: transparent;
+    right:-90%;
+    bottom:0;
+    border-radius: 30px 0px 0px 0px;
+    transition: right 2s ease;
+    display: flex;
+    align-items:center;
+}
+#camerabg {
+    content: "";
+    position: absolute;
+    width: 90%;
+    height:98%;
+    background-color: black;
+    opacity: 0.7;
+    right:-90%;
+    bottom:0;
+    border-radius: 30px 0px 0px 0px;
+    transition: right 2s ease;
+    margin: 0;
+    padding: 0;
+}
+
+#button {
+    position: relative;
+    width: 4%;
+    height: 20%;
+    left:-3.9%;
+    background: black;
+    opacity: 0.7;
+    z-index: 3;
+    border-radius: 10px 0px 0px 10px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 200%;
+}
+
+#camera {
+    position: relative;
+    border-radius: 30px;
+    margin: 0;
+    padding: 0;
+    width: 80%;
+    height: 60%;
+    z-index: 5;
+}
+#camera-div {
+    display: flex;
+    margin:0;
+    padding:0;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+#map-container {
+    position: relative;
+    width:100%;
+    height: 100%;
+    background: transparent;
+    opacity: 1;
+    margin: 0;
+    padding: 0;
+}
+#map {
+    position: absolute;
+    width: 50%;
+    bottom:0;
+    right: 0;
+    margin: 0;
+    padding: 0;
+    background-color: transparent;
+}
+#map > img {
+    position: relative;
+    width: 100%;
+    right: 10%;
+    bottom:10%;
+}
+#cc2 {
+    z-index: 6;
+    height:100%;
+}
+
+#connection {
+    border: 1px solid red;
+    width: 250px;
+    height: 50px;
+    position: relative;
+    top:0;
+    left: 10px;
+    border-radius: 10px;
+    display:flex;
+    align-items: center;
+    justify-content: center;
+    color: red;
+    z-index: -1;
+    margin:0;
+    padding:0;
+    margin-bottom: 10px;
+}
+#camera1, #camera2, #camera3, #camera4, #camera5, #camera6, #camera7, #camera8, #camera9 {
+    position: absolute;
+    width: 35px;  /* Adjust as per your requirements */
+    height: 25px; /* Adjust as per your requirements */
+    background-color: transparent; /* Just for visibility; you can remove this once positioned correctly */
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    opacity: 0.5;
+}
+
+#camera1 {
+    top: 44.25%;
+    left: 54.5%;
+}
+
+#camera2 {
+    top: 34.75%;
+    left: 48%;
+}
+
+#camera3 {
+    top: 58%;
+    left: 50%;
+}
+
+#camera4 {
+    top: 51%;
+    left: 23.4%;
+}
+
+#camera5 {
+    top: 71%;
+    left: 19.75%;
+}
+
+#camera6 {
+    top: 21%;
+    left: 26.5%;
+}
+
+#camera7 {
+    top: 25.5%;
+    left: 19.25%;
+}
+
+#camera8 {
+    top: 71%;
+    left: 10%;
+}
+
+#camera9 {
+    top: 38%;
+    left: 10%;
+}
