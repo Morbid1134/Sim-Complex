@@ -1,4 +1,4 @@
-# Application Readme
+# Application README
 
 ## Overview
 This application is a web-based interface built using Flask and Flask-SocketIO. It provides a terminal-like environment with additional features such as camera control, animatronics display, and interactive tasks for custom FNAF gameplay at home. Customize as you wish.
@@ -8,19 +8,28 @@ This application is a web-based interface built using Flask and Flask-SocketIO. 
 - Docker daemon running.
 
 ## Usage
-1. Clone the repository to your local machine.
+1. Clone the repository to your local machine and navigate to the project directory.
     ```bash
     git clone https://github.com/Morbid1134/Sim-Complex.git
+    cd Sim-Complex
     ```
-2. Build the Docker image using the provided Dockerfile:
+
+2. If you have already cloned the repository and want to update it, pull the latest changes:
+    ```bash
+    git pull origin main
+    ```
+
+3. Build the Docker image using the provided Dockerfile. If you have already built the Docker image and want to update it, you can rebuild it with the same image name you gave it before:
     ```bash
     docker build -t your-image-name .
     ```
-3. Run the Docker container:
+
+5. Run the Docker container:
     ```bash
     docker run -p 5000:5000 your-image-name
     ```
-4. Access the application in your web browser at [http://localhost:5000](http://localhost:5000).
+
+6. Access the application in your web browser at [http://localhost:5000](http://localhost:5000).
 
 ## Dockerfile
 ```Dockerfile
