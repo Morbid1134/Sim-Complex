@@ -23,15 +23,26 @@ This application is a web-based interface built using Flask and Flask-SocketIO. 
     ```bash
     docker build -t your-image-name .
     ```
+<<<<<<< HEAD
+=======
+    or
+    ```bash
+    docker build -d -t your-image-name .
+    ```
+    If you want the docker container to run in the background instead of from the terminal.
+>>>>>>> 2888f54d0cafa39efa787ed906d0f19f9a970a8d
 5. Run the Docker container:
     ```bash
     docker run -p 5000:5000 your-image-name
     ```
+<<<<<<< HEAD
     or
     ```bash
     docker run -d -p 5000:5000 your-image-name
     ```
     If you want the docker container to run in the background instead of from the terminal .
+=======
+>>>>>>> 2888f54d0cafa39efa787ed906d0f19f9a970a8d
     You can adjust the first 5000 to any port you want. If you do then that is the port you should use in the URL.
 
 6. Access the application in your web browser at [http://localhost:5000](http://localhost:5000).
