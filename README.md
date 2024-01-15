@@ -1,70 +1,127 @@
-# Application README
+# Sim Complex
 
-## Overview
-This application is a web-based interface built using Flask and Flask-SocketIO. It provides a terminal-like environment with additional features such as camera control, animatronics display, and interactive tasks for custom FNAF gameplay at home. Customize as you wish.
+Sim Complex is a web-based interface inspired by FNAF, designed for home use, specifically developed for [darkness](https://github.com/killas121).
 
-## Requirements
-- Docker installed on the host machine.
-- Docker daemon running.
+## Table of Contents
 
-## Instructions for Usage
+- [Sim Complex](#sim-complex)
+  - [Table of Contents](#table-of-contents)
+  - [About the Project](#about-the-project)
+  - [Getting Started](#getting-started)
+    - [Prerequisites](#prerequisites)
+    - [Installation with Python](#installation-with-python)
+    - [Updating with Python](#updating-with-python)
+    - [Installation with Docker](#installation-with-docker)
+    - [Updating with Docker](#updating-with-docker)
+  - [Contributing](#contributing)
+  - [License](#license)
+  - [Acknowledgments](#acknowledgments)
 
-1. Clone the repository to your local machine and navigate to the project directory:
+## About the Project
 
-```bash
-git clone https://github.com/Morbid1134/Sim-Complex.git
-cd Sim-Complex
-```
+Sim Complex is built as a web-based interface using Flask and Flask-SocketIO. It offers a terminal-like environment enriched with features such as camera control, animatronics display, and interactive tasks, allowing for a customized FNAF gameplay experience at home. Feel free to customize it according to your preferences.
 
-2. If you have already cloned the repository and wish to update it with the latest changes, execute the following command:
+## Getting Started
 
-```bash
-git pull origin main
-```
+You can choose to run the game either on your local environment or isolate it in a Docker container.
 
-3. Build or rebuild the Docker image using the provided Dockerfile. Note: If you have previously built the Docker image and intend to update it, delete the previous container and image before rebuilding:
+### Prerequisites
 
-```bash
-docker build -t your-image-name .
-```
+Ensure that you have either Docker or Python installed on your system.
 
-4. Execute the Docker container using the command below for foreground operation:
+### Installation with Python
 
-```bash
-docker run -p 80:5000 your-image-name
-```
+1. Navigate to your project directory:
+   ```bash
+   cd path/to/project/folder/
+   ```
+2. Clone the repository to your directory:
+   ```bash
+   git clone https://github.com/Morbid1134/Sim-Complex.git .
+   ```
+3. Install the required packages:
+   ```bash
+   pip install -r requirements.txt
+   ```
+4. Run the Flask server:
+   ```bash
+   flask run --port 80 --host 0.0.0.0
+   ```
 
-Alternatively, for background execution:
+### Updating with Python
 
-```bash
-docker run -d -p 80:5000 your-image-name
-```
+1. Navigate to your project directory:
+   ```bash
+   cd path/to/project/folder/
+   ```
+2. Pull the latest changes from the Git repository:
+   ```bash
+   git pull
+   ```
+3. Update the required packages:
+   ```bash
+   pip install -r requirements.txt --upgrade
+   ```
+4. Restart the Flask server:
+   ```bash
+   flask run --port 80 --host 0.0.0.0
+   ```
 
-> Be sure to replace the `80` with your preferred port number. Use the updated port number in the URL. Only modify the first port number, as indicated by the `80:5000` format.
+### Installation with Docker
 
-5. Access the application in your web browser by navigating to [http://localhost/](http://localhost/).
+1. Navigate to your project directory:
+   ```bash
+   cd path/to/project/folder/
+   ```
+2. Clone the repository to your directory:
+   ```bash
+   git clone https://github.com/Morbid1134/Sim-Complex.git .
+   ```
+3. Build the Docker image:
+   ```bash 
+   docker build -t your-image-name .
+   ```
+4. Run the Docker image in a container:
+   ```bash
+   docker run -p 80:5000 your-image-name
+   ```
 
-## Dockerfile
-```Dockerfile
-FROM ubuntu
+### Updating with Docker
 
-RUN apt update
-RUN apt install python3-pip -y
-RUN pip3 install Flask==3.0.0
-RUN pip3 install Flask_SocketIO==5.3.6
+1. Navigate to your project directory:
+   ```bash
+   cd path/to/project/folder/
+   ```
+2. Pull the latest changes from the Git repository:
+   ```bash
+   git pull
+   ```
+3. Build the updated Docker image:
+   ```bash
+   docker build -t your-image-name .
+   ```
+4. Stop and remove the existing Docker container:
+   ```bash
+   docker stop $(docker ps -a -q --filter ancestor=your-image-name)
+   ```
+   ```bash
+   docker rm $(docker ps -a -q --filter ancestor=your-image-name)
+   ```
+5. Run the updated Docker image in a container:
+   ```bash
+   docker run -p 80:5000 your-image-name
+   ```
 
-WORKDIR /app
-
-COPY . .
-
-CMD [ "python3", "-m", "flask", "run", "--host=0.0.0.0" ]
-```
+Note: Adjust port mapping if your Docker container runs on different ports. Replace `your-image-name` with the actual name specified during Docker image building.
 
 ## Disclaimer
-This application is for demonstration purposes only and should only be used on a local intranet. The creation of this application was not designed for general use and has specific features that would need redesigned for usable reproduction. Some features may not have actual functionality and are included for illustrative purposes. Their are also features that are not easily changed and could take some time for others to try to replicate in their own use of this project.
 
-## Credits
-This application was developed using Flask and Flask-SocketIO. Special thanks to the Flask and Socket.IO communities for their contributions. [Morbid](https://github.com/Morbid1134) was the sole Front-end/Back-end developer. Majority of built-in tasks were procured and re-designed to fit this application by [darkness](https://github.com/killas121).
+This application is for demonstration purposes only and should be used solely on a local intranet. It was not designed for general use, and specific features may need redesign for reproduction. Some features are included for illustrative purposes and may lack actual functionality. Additionally, certain features may not be easily changed and could require considerable effort for others to replicate in their use of this project.
+
+## Contributing
+
+This application was developed using Flask and Flask-SocketIO. Special thanks to the Flask and Socket.IO communities for their contributions. The sole Front-end/Back-end developer is [Morbid](https://github.com/Morbid1134), and the majority of built-in tasks were procured and re-designed to fit this application by [darkness](https://github.com/killas121).
 
 ## License
+
 This application is licensed under the [MIT License](LICENSE).
