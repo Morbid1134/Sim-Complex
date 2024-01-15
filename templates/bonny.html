@@ -115,7 +115,10 @@ socket.on('allTasksCompleted', function() {
 
 function pingEnd() {
     socket.emit('pingEnd');
-    startTimer(10, pingStart);
+    var movingTimeString = "{{ moving_time }}";
+
+    var movingTime = parseInt(movingTimeString);
+    startTimer(movingTime, pingStart);
     const randomIndex = Math.random() < 0.9 ? 0 : 1; // Randomly selects 0 or 1
     const audios = [move_audio, teleport_audio];
     audios[randomIndex].play();
@@ -123,7 +126,12 @@ function pingEnd() {
 
 function pingStart() {
     socket.emit('pingStart');
-    startTimer(randomInt(35, 50), pingEnd);
+    var minString = "{{ min }}";
+    var maxString = "{{ max }}";
+
+    var min = parseInt(minString);
+    var max = parseInt(maxString);
+    startTimer(randomInt(min, max), pingEnd);
     stop_audio.play();
 }
 

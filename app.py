@@ -20,6 +20,14 @@ IP = {
     "9": "http://10.0.0.0:8080/video",
 }
 
+
+freddy_min = 50
+freddy_max = 50
+bonny_min = 50
+bonny_max = 50
+chica_min = 50
+chica_max = 50
+
 # JSON file to store camera IPs
 JSON_FILE_PATH = "camera_ips.json"
 
@@ -35,6 +43,7 @@ def initialize_cameras():
         pass
 
 moving = 0
+time_to_move = 60
 
 
 # Create a Flask web application
@@ -64,8 +73,10 @@ def get_random_tasks(n):
 
 # Initialize a dictionary to store tasks with their completion status
 global tasks
+global number_of_tasks
 tasks = {}
-for task in get_random_tasks(8):
+number_of_tasks = 8
+for task in get_random_tasks(number_of_tasks):
     tasks[str(task)] = 'Incomplete'
 
 # Initalize no selected tasks
@@ -79,19 +90,48 @@ def home():
 @app.route("/settings", methods=["GET", "POST"])
 def settings():
     global IP
+    global tasks
+    global moving
+    global number_of_tasks, time_to_move
+    global freddy_min, freddy_max, chica_min, chica_max, bonny_min, bonny_max
 
     if request.method == "POST":
-        # Update IP dictionary with form values
-        for key in IP.keys():
-            IP[key] = request.form[key]
+        if "camera-form" in request.form:
+            # Update IP dictionary with form values
+            for key in IP.keys():
+                IP[key] = request.form[key]
 
-        # Save updated IPs to JSON file
-        with open(JSON_FILE_PATH, "w") as file:
-            json.dump(IP, file)
-        
+            # Save updated IPs to JSON file
+            with open(JSON_FILE_PATH, "w") as file:
+                json.dump(IP, file)
+
+        elif "task-list" in request.form:
+            tasks = {}
+            for task in get_random_tasks(number_of_tasks):
+                tasks[str(task)] = 'Incomplete'
+
+        elif "reset-game" in request.form:
+                number_of_tasks = request.form["number-of-tasks"]
+                socketio.emit("allTasksCompleted")
+                tasks = {}
+                for task in get_random_tasks(int(number_of_tasks)):
+                    tasks[str(task)] = 'Incomplete'
+            
+        elif "movement-time" in request.form:
+            # Initialize a dictionary to store tasks with their completion status
+            freddy_min = request.form['min_freddy']
+            freddy_max = request.form['max_freddy']
+            bonny_min = request.form['min_bonny']
+            bonny_max = request.form['max_bonny']
+            chica_min = request.form['min_chica']
+            chica_max = request.form['max_chica']
+            time_to_move = request.form['time_to_move']
+
         redirect(url_for('settings'))
-
-    return render_template("settings.html", IP=IP)
+    
+    settings_tasks = [i for i in tasks.items()]
+    lenTasks = len(settings_tasks)
+    return render_template("settings.html", IP=IP, tasks=settings_tasks, lenTasks = lenTasks, min_freddy=freddy_min, max_freddy=freddy_max, min_bonny=bonny_min, max_bonny=bonny_max, min_chica=chica_min, max_chica=chica_max, time_to_move=time_to_move)
 
 # Define a route for the main terminal page
 @app.route("/terminal", methods=["GET", "POST"])
@@ -107,15 +147,18 @@ def animatronics():
 
 @app.route("/bonny")
 def bonny():
-    return render_template("bonny.html")
+    global bonny_min, bonny_max
+    return render_template("bonny.html", min=bonny_min, max=bonny_max, moving_time=time_to_move)
 
 @app.route("/freddy")
 def freddy():
-    return render_template("freddy.html")
+    global freddy_min, freddy_max
+    return render_template("freddy.html", min=freddy_min, max=freddy_max, moving_time=time_to_move)
 
 @app.route("/chica")
 def chica():
-    return render_template("chica.html")
+    global chica_min, chica_max
+    return render_template("chica.html", min=chica_min, max=chica_max, moving_time=time_to_move)
 
 @app.route("/boot")
 def boot():
@@ -128,10 +171,6 @@ def handle_connect():
 @socketio.on('disconnect')
 def handle_disconnect():
     print(f"Client disconnected: {request.sid}")
-
-@socketio.on('send_message')
-def handle_message(message):
-    socketio.emit('receive_message', message)
 
 @socketio.on('newCamera')
 def handle_new_camera_request(number):
@@ -149,6 +188,8 @@ def handle_task_completion(taskName):
     if allDone:
         time.sleep(2)
         socketio.emit("allTasksCompleted")
+        global moving
+        moving = 0
     else:
         socketio.emit("taskCompleted")
 
@@ -354,14 +395,6 @@ def typing_test():
 def breakout():
     return render_template("breakout.html")
 
-@app.route("/reset")
-def reset():
-    # Initialize a dictionary to store tasks with their completion status
-    global tasks
-    tasks = {}
-    for task in get_random_tasks(8):
-        tasks[str(task)] = 'Incomplete'
-
 if __name__ == '__main__':
     initialize_cameras()
-    socketio.run(app)
+    socketio.run(app, debug=True)

@@ -5,86 +5,264 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Settings</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    <style>
-        body {
-            background-color: #343a40;
-            color: #ffffff;
-        }
-
-        .container {
-            margin-top: 50px;
-        }
-
-        h1 {
-            color: #007bff;
-        }
-
-        label {
-            font-weight: bold;
-            color: #ffffff;
-        }
-
-        .form-control {
-            margin-bottom: 15px;
-            background-color: #495057;
-            color: #ffffff;
-        }
-
-        .btn-primary {
-            background-color: #007bff;
-            border-color: #007bff;
-        }
-
-        .btn-primary:hover {
-            background-color: #0056b3;
-            border-color: #0056b3;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/settings.css') }}">
 </head>
 <body>
     <div class="container">
-        <h1 class="text-center">IP Settings</h1>
-        <form method="post">
-            <div class="form-group">
-                <label for="1">Front Door:</label>
-                <input class="form-control" name="1" value="{{ IP['1'] }}">
+        <div class="row gutters">
+            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <form action="settings" method="post" class="text-center">
+                            <div class="row gutters align-items-center">
+                                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 text-left">
+                                    <h6 class="mb-3 text-primary">Reset Game</h6>
+                                </div>
+                                <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-12">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text custom-label">Number of Tasks</span>
+                                        </div>
+                                        <input type="number" class="form-control" name="number-of-tasks" id="number-of-tasks" min="0" max="100" value="{{ lenTasks }}">
+                                    </div>
+                                </div>
+                                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                    <button type="submit" id="submit" name="reset-game" class="btn btn-primary">Reset Game</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="2">Kitchen:</label>
-                <input class="form-control" name="2" value="{{ IP['2'] }}">
-            </div>
-            <div class="form-group">
-                <label for="3">Main Hall:</label>
-                <input class="form-control" name="3" value="{{ IP['3'] }}">
-            </div>
-            <div class="form-group">
-                <label for="4">Outside Closet:</label>
-                <input class="form-control" name="4" value="{{ IP['4'] }}">
-            </div>
-            <div class="form-group">
-                <label for="5">Inside Closet:</label>
-                <input class="form-control" name="5" value="{{ IP['5'] }}">
-            </div>
-            <div class="form-group">
-                <label for="6">Outside Storage:</label>
-                <input class="form-control" name="6" value="{{ IP['6'] }}">
-            </div>
-            <div class="form-group">
-                <label for="7">Inside Storage:</label>
-                <input class="form-control" name="7" value="{{ IP['7'] }}">
-            </div>
-            <div class="form-group">
-                <label for="8">South Room:</label>
-                <input class="form-control" name="8" value="{{ IP['8'] }}">
-            </div>
-            <div class="form-group">
-                <label for="9">North Room:</label>
-                <input class="form-control" name="9" value="{{ IP['9'] }}">
-            </div>
-
-            <button type="submit" class="btn btn-primary">Save</button>
-        </form>
+        </div>
     </div>
+    
+    
+    <div class="container">
+        <div class="row gutters">
+            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <form action="settings" method="post">
+                            <div class="row gutters">
+                                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                                    <h6 class="mb-3 text-primary">Cameras</h6>
+                                </div>
+                                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                    <div class="form-group">
+                                        <label for="1">Front Door</label>
+                                        <input type="text" class="form-control" name="1" value="{{ IP['1'] }}">
+                                    </div>
+                                </div>
+                                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                    <div class="form-group">
+                                        <label for="2">Kitchen</label>
+                                        <input type="text" class="form-control" name="2" value="{{ IP['2'] }}">
+                                    </div>
+                                </div>
+                                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                    <div class="form-group">
+                                        <label for="3">Main Hall</label>
+                                        <input type="text" class="form-control" name="3" value="{{ IP['3'] }}">
+                                    </div>
+                                </div>
+                                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                    <div class="form-group">
+                                        <label for="4">Outside Closet</label>
+                                        <input type="text" class="form-control" name="4" value="{{ IP['4'] }}">
+                                    </div>
+                                </div>
+                                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                    <div class="form-group">
+                                        <label for="5">Inside Closet</label>
+                                        <input type="text" class="form-control" name="5" value="{{ IP['5'] }}">
+                                    </div>
+                                </div>
+                                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                    <div class="form-group">
+                                        <label for="6">Outside Storage</label>
+                                        <input type="text" class="form-control" name="6" value="{{ IP['6'] }}">
+                                    </div>
+                                </div>
+                                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                    <div class="form-group">
+                                        <label for="7">Inside Storage</label>
+                                        <input type="text" class="form-control" name="7" value="{{ IP['7'] }}">
+                                    </div>
+                                </div>
+                                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                    <div class="form-group">
+                                        <label for="8">South Room</label>
+                                        <input type="text" class="form-control" name="8" value="{{ IP['8'] }}">
+                                    </div>
+                                </div>
+                                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                    <div class="form-group">
+                                        <label for="9">North Room</label>
+                                        <input type="text" class="form-control" name="9" value="{{ IP['9'] }}">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row gutters">
+                                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                                    <div class="text-right">
+                                        <button type="submit" id="submit" name="camera-form" class="btn btn-primary">Update</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row gutters">
+            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <form action="settings" method="post">
+                            <div class="row gutters">
+                                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                                    <h6 class="mb-3 text-primary">Tasks</h6>
+                                </div>
+                                {% for i in range(0, lenTasks) %}
+                                <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
+                                    <div class="form-group">
+                                        <label>Task {{i+1}} - {{tasks[i][1]}}</label>
+                                        <h6 class="mb-3 text-secondary">{{tasks[i][0]}}</h6>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <div class="row gutters">
+                                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                                    <div class="text-center">
+                                        <button type="submit" id="submit" name="task-list" class="btn btn-primary">Change Tasks</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row gutters">
+            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <form action="settings" method="post" onsubmit="return validateForm()">
+                            <div class="row gutters">
+                                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                                    <h6 class="mb-3 text-primary">Time Ranges</h6>
+                                </div>
+                                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-12">
+                                    <div class="form-group">
+                                        <label for="1">Freddy</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text custom-label">Min</span>
+                                            </div>
+                                            <input type="number" class="form-control" name="min_freddy" id="min_freddy" min="0" max="600" value="{{min_freddy}}">
+                                        </div>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text custom-label">Max</span>
+                                            </div>
+                                            <input type="number" class="form-control" name="max_freddy" id="max_freddy" min="0" max="600" value="{{max_freddy}}">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-12">
+                                    <div class="form-group">
+                                        <label for="1">Bonny</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text custom-label">Min</span>
+                                            </div>
+                                            <input type="number" class="form-control" name="min_bonny" id="min_bonny" min="0" max="600" value="{{min_bonny}}">
+                                        </div>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text custom-label">Max</span>
+                                            </div>
+                                            <input type="number" class="form-control" name="max_bonny" id="max_bonny" min="0" max="600" value="{{max_bonny}}">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-12">
+                                    <div class="form-group">
+                                        <label for="1">Chica</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text custom-label">Min</span>
+                                            </div>
+                                            <input type="number" class="form-control" name="min_chica" id="min_chica" min="0" max="600" value="{{min_chica}}">
+                                        </div>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text custom-label">Max</span>
+                                            </div>
+                                            <input type="number" class="form-control" name="max_chica" id="max_chica" min="0" max="600" value="{{max_chica}}">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-12">
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text custom-label">Time to Move</span>
+                                            </div>
+                                            <input type="number" class="form-control" name="time_to_move" id="time_to_move" min="0" max="600" value="{{time_to_move}}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row gutters">
+                                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                                    <div class="text-center">
+                                        <button type="submit" id="submit-time" name="movement-time" class="btn btn-primary">Update</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+    function validateForm() {
+        var minFreddy = parseInt(document.getElementById("min_freddy").value);
+        var maxFreddy = parseInt(document.getElementById("max_freddy").value);
+
+        var minBonny = parseInt(document.getElementById("min_bonny").value);
+        var maxBonny = parseInt(document.getElementById("max_bonny").value);
+
+        var minChica = parseInt(document.getElementById("min_chica").value);
+        var maxChica = parseInt(document.getElementById("max_chica").value);
+
+        var submitButton = document.getElementById("submit-time");
+
+        if (minFreddy > maxFreddy || minBonny > maxBonny || minChica > maxChica) {
+            submitButton.disabled = true;
+        } else {
+            submitButton.disabled = false;
+        }
+    }
+
+    // Add event listeners to enable/disable the submit button based on input changes
+    document.getElementById("min_freddy").addEventListener("input", validateForm);
+    document.getElementById("max_freddy").addEventListener("input", validateForm);
+    document.getElementById("min_bonny").addEventListener("input", validateForm);
+    document.getElementById("max_bonny").addEventListener("input", validateForm);
+    document.getElementById("min_chica").addEventListener("input", validateForm);
+    document.getElementById("max_chica").addEventListener("input", validateForm);
+
+    </script>
+    
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>

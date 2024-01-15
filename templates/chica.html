@@ -114,13 +114,21 @@ socket.on('allTasksCompleted', function() {
 
 function pingEnd() {
     socket.emit('pingEnd');
-    startTimer(10, pingStart);
+    var movingTimeString = "{{ moving_time }}";
+
+    var movingTime = parseInt(movingTimeString);
+    startTimer(movingTime, pingStart);
     move_audio.play();
 }
 
 function pingStart() {
     socket.emit('pingStart');
-    startTimer(randomInt(35, 55), pingEnd);
+    var minString = "{{ min }}";
+    var maxString = "{{ max }}";
+
+    var min = parseInt(minString);
+    var max = parseInt(maxString);
+    startTimer(randomInt(min, max), pingEnd);
     stop_audio.play();
 }
 
