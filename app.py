@@ -107,7 +107,7 @@ def settings():
 
         elif "task-list" in request.form:
             tasks = {}
-            for task in get_random_tasks(number_of_tasks):
+            for task in get_random_tasks(int(number_of_tasks)):
                 tasks[str(task)] = 'Incomplete'
 
         elif "reset-game" in request.form:
