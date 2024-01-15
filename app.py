@@ -354,6 +354,14 @@ def typing_test():
 def breakout():
     return render_template("breakout.html")
 
+@app.route("/reset")
+def reset():
+    # Initialize a dictionary to store tasks with their completion status
+    global tasks
+    tasks = {}
+    for task in get_random_tasks(8):
+        tasks[str(task)] = 'Incomplete'
+
 if __name__ == '__main__':
     initialize_cameras()
     socketio.run(app)
