@@ -17,16 +17,16 @@ def settings():
                 game.IP[key] = request.form[key]
 
             # Save updated IPs to JSON file
-            with open(game.CAMERA_PATHS, "w") as file:
+            with open(game.CAMERA_PATH, "w") as file:
                 json.dump(game.IP, file)
 
         elif "task-list" in request.form:
-            game.reset()
+            game.reset_tasks()
 
         elif "reset-game" in request.form:
             number_of_tasks = request.form["number-of-tasks"]
             socketio.emit("allTasksCompleted")
-            game.reset()
+            game.reset(number_of_tasks)
             
         elif "movement-time" in request.form:
             # Initialize a dictionary to store tasks with their completion status

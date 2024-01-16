@@ -29,17 +29,17 @@ class Game():
                 json.dump(self.IP, file)
             
     def check_moving(self):
-        if self.bonny or self.freddy or self.chica:
+        if self.bonny.moving or self.freddy.moving or self.chica.moving:
             return True
     
-    def reset(self):
+    def reset(self, number_of_tasks):
         self.guard = None
-        self.guard = Terminal()
+        self.guard = Terminal(int(number_of_tasks))
 
         
     def reset_tasks(self):
-        self.guard = None
-        self.guard = Terminal()
+        number_of_tasks = self.guard.number_of_tasks
+        self.guard = Terminal(int(number_of_tasks))
 
 
 class Animatronic():
@@ -50,7 +50,7 @@ class Animatronic():
         self.moving = False
 
 class Terminal():
-    def __init__(self):
+    def __init__(self, number_of_tasks=9):
         # Initial terminal output containing system information
         self.output = ["Linux pi-hole 6.1.21-v7+ #1642 SMP Mon Apr  3 17:20:52 BST 2023 armv7l",
                         "", "The programs included with the Debian GNU/Linux system are free software;",
@@ -58,7 +58,7 @@ class Terminal():
                         "individual files in /usr/share/doc/*/copyright.", "",
                         "Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent",
                         "permitted by applicable law.", "Last login: Sun Dec 17 12:12:06 2023 from 10.0.0.59"]
-        self.number_of_tasks = 9
+        self.number_of_tasks = number_of_tasks
         self.tasks = Terminal.get_random_tasks(self.number_of_tasks)
         self.selected = None
     

@@ -100,42 +100,44 @@
             socket.emit('newCamera', number); // Emit the socket event with the provided number
         }
         
-        socket.on('cameraOff', function() {
-    // Assuming you have an image with id "camera"
-    const imageElement = document.getElementById('camera');
+        
+        function cameraOff() {
+            // Assuming you have an image with id "camera"
+            const imageElement = document.getElementById('camera');
 
-    // Create video element
-    const videoElement = document.createElement('video');
-    videoElement.src = '{{ url_for("static", filename="video/static.mp4") }}'; // Set your video path
-    videoElement.setAttribute('id', 'videoElement');
-    videoElement.autoplay = true;
-    videoElement.muted = false;
-    videoElement.loop = true;
+            // Create video element
+            const videoElement = document.createElement('video');
+            videoElement.src = '{{ url_for("static", filename="video/static.mp4") }}'; // Set your video path
+            videoElement.setAttribute('id', 'videoElement');
+            videoElement.autoplay = true;
+            videoElement.muted = false;
+            videoElement.loop = true;
 
-    // Create a div to contain the video
-    const videoContainer = document.createElement('div');
-    videoContainer.style.position = 'absolute';
-    videoContainer.style.top = `${imageElement.offsetTop}px`;
-    videoContainer.style.left = `${imageElement.offsetLeft}px`;
-    videoContainer.style.width = `${imageElement.offsetWidth}px`;
-    videoContainer.style.height = `${imageElement.offsetHeight}px`;
-    videoContainer.style.top = `${imageElement.offsetTop}px`;
-    videoContainer.style.zIndex = '5';
+            // Create a div to contain the video
+            const videoContainer = document.createElement('div');
+            videoContainer.style.position = 'absolute';
+            videoContainer.style.top = `${imageElement.offsetTop}px`;
+            videoContainer.style.left = `${imageElement.offsetLeft}px`;
+            videoContainer.style.width = `${imageElement.offsetWidth}px`;
+            videoContainer.style.height = `${imageElement.offsetHeight}px`;
+            videoContainer.style.top = `${imageElement.offsetTop}px`;
+            videoContainer.style.zIndex = '5';
 
-    // Set dimensions for videoElement to cover the div
-    videoElement.style.width = '100%';
-    videoElement.style.height = '100%';
-    videoElement.style.objectFit = 'cover'; // Ensures video covers the div without distorting
+            // Set dimensions for videoElement to cover the div
+            videoElement.style.width = '100%';
+            videoElement.style.height = '100%';
+            videoElement.style.objectFit = 'cover'; // Ensures video covers the div without distorting
 
-    // Append videoElement to videoContainer
-    videoContainer.appendChild(videoElement);
+            // Append videoElement to videoContainer
+            videoContainer.appendChild(videoElement);
 
-    // Append videoContainer to the same parent as imageElement
-    imageElement.parentElement.appendChild(videoContainer);
-});
+            // Append videoContainer to the same parent as imageElement
+            imageElement.parentElement.appendChild(videoContainer);
+        }
 
-
-        socket.on('cameraOn', function() {
+        socket.on('cameraOff', cameraOff);
+        
+        function cameraOn() {
             // Assuming you have an image with id "imageElement" and video element id "videoElement"
             const imageElement = document.getElementById('camera');
             const videoElement = document.getElementById('videoElement');
@@ -144,7 +146,9 @@
                 // Remove video element from DOM
                 videoElement.parentNode.removeChild(videoElement);
             }
-        });
+        }
+        
+        socket.on('cameraOn', cameraOn);
         const game_over = new Audio('{{ url_for("static", filename="audio/Game_Over.mp3") }}');
 
         socket.on('allTasksCompleted', function() {
@@ -154,7 +158,11 @@
                     window.location.href = terminal_url;
             }, game_over.duration * 1000); // Convert audio duration to milliseconds
         });
-
+        
+        const camera = document.getElementById('camera');
+        camera.onload = function() {
+          socket.emit('isCameraBlurred')
+        }
     </script>
   </body>
 </html>

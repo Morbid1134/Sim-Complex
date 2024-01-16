@@ -119,8 +119,8 @@ function playRandomAudio() {
 }
 
 function pingEnd() {
-    socket.emit('pingEnd');
-    var movingTimeString = "{{ freddy.moving_time }}";
+    socket.emit('pingEnd', 'freddy');
+    var movingTimeString = "{{ freddy.time_to_move }}";
 
     var movingTime = parseInt(movingTimeString);
     startTimer(movingTime, pingStart);
@@ -130,7 +130,7 @@ function pingEnd() {
 }
 
 function pingStart() {
-    socket.emit('pingStart');
+    socket.emit('pingStart', 'freddy');
     var minString = "{{ freddy.min }}";
     var maxString = "{{ freddy.max }}";
 

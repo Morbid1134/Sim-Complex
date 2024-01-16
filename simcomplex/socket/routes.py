@@ -8,26 +8,39 @@ def handle_new_camera_request(number):
 def handle_task_completion(taskName):
     game.guard.taskComplete(taskName)
 
+@socketio.on('isCameraBlurred')
+def handle_blur_request():
+    if game.check_moving():
+        socketio.emit('cameraOff')
+    else:
+        socketio.emit('cameraOn')
+
 @socketio.on('pingEnd')
-def handle_cameras_off():
-    global moving
-    if moving >= 3:
-        print('something went wrong! pingEnd')
-    if moving == 0:
-        # send cameras off signal
+def handle_cameras_off(animatronic):
+    
+    is_moving = game.check_moving()
+    if not is_moving:
         print('turn off camera')
         socketio.emit('cameraOff')
-    moving += 1
+
+    if animatronic == 'chica':
+        game.chica.moving = True
+    elif animatronic == 'bonny':
+        game.bonny.moving = True
+    elif animatronic == 'freddy':
+        game.freddy.moving = True
 
 @socketio.on('pingStart')
-def handle_cameras_on():
-    global moving
-    if moving <= 0:
-        print('something went wrong! pingStart')
+def handle_cameras_on(animatronic):
+    if animatronic == 'chica':
+        game.chica.moving = False
+    elif animatronic == 'bonny':
+        game.bonny.moving = False
+    elif animatronic == 'freddy':
+        game.freddy.moving = False
 
-    moving -= 1
-    if moving == 0:
-        # send cameras on signal
+    is_moving = game.check_moving()
+    if not is_moving:
         print('turn on camera')
         socketio.emit('cameraOn')
 
