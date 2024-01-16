@@ -115,7 +115,7 @@ socket.on('allTasksCompleted', function() {
 
 function pingEnd() {
     socket.emit('pingEnd');
-    var movingTimeString = "{{ moving_time }}";
+    var movingTimeString = "{{ bonny.moving_time }}";
 
     var movingTime = parseInt(movingTimeString);
     startTimer(movingTime, pingStart);
@@ -126,8 +126,8 @@ function pingEnd() {
 
 function pingStart() {
     socket.emit('pingStart');
-    var minString = "{{ min }}";
-    var maxString = "{{ max }}";
+    var minString = "{{ bonny.min }}";
+    var maxString = "{{ bonny.max }}";
 
     var min = parseInt(minString);
     var max = parseInt(maxString);

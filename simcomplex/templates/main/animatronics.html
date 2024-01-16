@@ -8,13 +8,13 @@
     </head>
     <body style="background: url('{{ url_for('static', filename='img/ballpit.jpg') }}') no-repeat center center fixed; background-size: auto 100%;">
         <div id="blur">
-        <div id="card" onclick="location.href='{{ url_for('bonny') }}';">
+        <div id="card" onclick="location.href='{{ url_for('main.bonny') }}';">
             <img src="{{ url_for('static', filename='img/bonny.jpg') }}"/>
         </div>
-        <div id="card" onclick="location.href='{{ url_for('freddy') }}';">
+        <div id="card" onclick="location.href='{{ url_for('main.freddy') }}';">
             <img src="{{ url_for('static', filename='img/freddy.jpg') }}"/>
         </div>
-        <div id="card" onclick="location.href='{{ url_for('chica') }}';">
+        <div id="card" onclick="location.href='{{ url_for('main.chica') }}';">
             <img src="{{ url_for('static', filename='img/chica.jpg') }}"/>
         </div></div>
     </body>

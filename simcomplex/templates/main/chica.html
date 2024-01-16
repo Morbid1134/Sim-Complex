@@ -114,7 +114,7 @@ socket.on('allTasksCompleted', function() {
 
 function pingEnd() {
     socket.emit('pingEnd');
-    var movingTimeString = "{{ moving_time }}";
+    var movingTimeString = "{{ chica.moving_time }}";
 
     var movingTime = parseInt(movingTimeString);
     startTimer(movingTime, pingStart);
@@ -123,8 +123,8 @@ function pingEnd() {
 
 function pingStart() {
     socket.emit('pingStart');
-    var minString = "{{ min }}";
-    var maxString = "{{ max }}";
+    var minString = "{{ chica.min }}";
+    var maxString = "{{ chica.max }}";
 
     var min = parseInt(minString);
     var max = parseInt(maxString);
