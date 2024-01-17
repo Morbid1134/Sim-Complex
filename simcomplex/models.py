@@ -1,7 +1,8 @@
 from flask import url_for
 import json, random, re
-from simcomplex import socketio
+from simcomplex import socketio, app
 import time
+import os
 
 class Game():
 
@@ -61,7 +62,9 @@ class Terminal():
                         "individual files in /usr/share/doc/*/copyright.", "",
                         "Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent",
                         "permitted by applicable law.", "Last login: Sun Dec 17 12:12:06 2023 from 10.0.0.59"]
-        task_list=["enduro", "task_2048", "loading", "maze", "osu", "bin_sorting", "frogger", "memory_pattern", "missle_command", "pong", "snake", "tetris", "typing_test", "breakout"]
+        tasks_folder = os.path.join(app.root_path, 'templates', 'tasks')
+        
+        task_list=[file[:-5] for file in os.listdir(tasks_folder) if file.endswith(".html")]
         self.task_list = dict([(task, True) for task in task_list])
         self.number_of_tasks = number_of_tasks
         self.tasks = Terminal.get_random_tasks(self, self.number_of_tasks)
