@@ -38,6 +38,10 @@ class Game():
     def reset(self, number_of_tasks):
         self.guard = None
         self.guard = Terminal(int(number_of_tasks))
+        self.freddy = Animatronic()
+        self.chica = Animatronic()
+        self.bonny = Animatronic()
+
 
         
     def reset_tasks(self):
