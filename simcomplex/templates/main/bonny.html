@@ -98,26 +98,12 @@ socket.on('disconnect', function() {
 });
 
 
-const move_audio = new Audio();
-move_audio.src = '{{ url_for("static", filename="audio/Move.mp3") }}';
-move_audio.preload = 'auto';
-
-const stop_audio = new Audio();
-stop_audio.src = '{{ url_for("static", filename="audio/Stop.mp3") }}';
-stop_audio.preload = 'auto';
-
-const task_complete = new Audio();
-task_complete.src = '{{ url_for("static", filename="audio/CompletedTask.mp3") }}';
-task_complete.preload = 'auto';
-
-const game_over = new Audio();
-game_over.src = '{{ url_for("static", filename="audio/Game_Over.mp3") }}';
-game_over.preload = 'auto';
-
-const pause_audio = new Audio();
-pause_audio.src = '{{ url_for("static", filename="audio/paused.mp3") }}';
-pause_audio.preload = 'auto';
-
+const move_audio = new Audio('{{ url_for("static", filename="audio/Move.mp3") }}');
+const teleport_audio = new Audio('{{ url_for("static", filename="audio/teleport.mp3") }}');
+const stop_audio = new Audio('{{ url_for("static", filename="audio/Stop.mp3") }}');
+const task_complete = new Audio('{{ url_for("static", filename="audio/CompletedTask.mp3") }}');
+const game_over = new Audio('{{ url_for("static", filename="audio/Game_Over.mp3") }}');
+const pause = new Audio('{{ url_for("static", filename="audio/paused.mp3") }}');
 
 socket.on('taskCompleted', function() {
     task_complete.play()
@@ -169,7 +155,7 @@ socket.on('gamePause', function() {
     isTimerRunning = false;
     document.getElementById("minutes").innerText = String("0").padStart(2, "0");
     document.getElementById("seconds").innerText = String("0").padStart(2, "0");
-    pause_audio.play()
+    pause.play()
 });
 
 function gameRun() {
