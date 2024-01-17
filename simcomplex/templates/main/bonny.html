@@ -10,7 +10,7 @@
 <body>
     <div class="content-container">
         <h1>Bonnie</h1>
-        <div id="countdown" onclick="startTimer()">
+        <div id="countdown">
             <span id="minutes">00</span> : <span id="seconds">00</span>
         </div>
         <div id="connection">Not Connected</div>
@@ -71,9 +71,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function handleEnd() {
         countdown.classList.remove('active');
-        if (!isTimerRunning) {
-            startTimer(10, pingEnd);
-        }
+    }
+    
+    var isRunning = "{{ isRunning }}"
+    console.log(isRunning)
+    if (isRunning === "True") {
+        gameRun();
     }
 });
 
@@ -100,6 +103,7 @@ const teleport_audio = new Audio('{{ url_for("static", filename="audio/teleport.
 const stop_audio = new Audio('{{ url_for("static", filename="audio/Stop.mp3") }}');
 const task_complete = new Audio('{{ url_for("static", filename="audio/CompletedTask.mp3") }}');
 const game_over = new Audio('{{ url_for("static", filename="audio/Game_Over.mp3") }}');
+const pause = new Audio('{{ url_for("static", filename="audio/paused.mp3") }}');
 
 socket.on('taskCompleted', function() {
     task_complete.play()
@@ -114,8 +118,8 @@ socket.on('allTasksCompleted', function() {
 });
 
 function pingEnd() {
-    socket.emit('pingEnd');
-    var movingTimeString = "{{ moving_time }}";
+    socket.emit('pingEnd', 'bonny');
+    var movingTimeString = "{{ bonny.time_to_move }}";
 
     var movingTime = parseInt(movingTimeString);
     startTimer(movingTime, pingStart);
@@ -125,9 +129,9 @@ function pingEnd() {
 }
 
 function pingStart() {
-    socket.emit('pingStart');
-    var minString = "{{ min }}";
-    var maxString = "{{ max }}";
+    socket.emit('pingStart', 'bonny');
+    var minString = "{{ bonny.min }}";
+    var maxString = "{{ bonny.max }}";
 
     var min = parseInt(minString);
     var max = parseInt(maxString);
@@ -139,7 +143,28 @@ function randomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-        
+socket.on('gameStart', function() {
+    gameRun();
+});
+
+socket.on('gamePause', function() {
+    // Set isMoving to False
+    socket.emit('pingStart', 'chica');
+    // Stop timer
+    clearInterval(timerInterval);
+    isTimerRunning = false;
+    document.getElementById("minutes").innerText = String("0").padStart(2, "0");
+    document.getElementById("seconds").innerText = String("0").padStart(2, "0");
+    pause.play()
+});
+
+function gameRun() {
+    socket.emit('pingStart', 'bonny');
+    // Turn on clock
+    stop_audio.play();
+    startTimer(10, pingEnd);
+}
+
     </script>
 </body>
 </html>

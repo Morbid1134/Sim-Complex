@@ -11,11 +11,11 @@
         <div id="blob"></div>
         <div id="blob2"></div>
         <div id="blur"></div>
-        <div id="card" onclick="location.href='{{ url_for('boot') }}';">
+        <div id="card" onclick="location.href='{{ url_for('main.boot') }}';">
             <h1>Guard</h1>
             <img src="{{ url_for('static', filename='img/help_wanted.jpg') }}"/>
         </div>
-        <div id="card" onclick="location.href='{{ url_for('animatronics') }}';">
+        <div id="card" onclick="location.href='{{ url_for('main.animatronics') }}';">
             <h1>Animatronic</h1>
             <img src="{{ url_for('static', filename='img/animatronics.jpg') }}"/>
         </div>

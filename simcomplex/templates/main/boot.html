@@ -16,7 +16,7 @@
         const video = document.getElementById('background-video');
 
         video.addEventListener('ended', function() {
-            window.location.href = '{{ url_for("terminal") }}'; // Replace with your desired URL
+            window.location.href = '{{ url_for("main.terminal") }}'; // Replace with your desired URL
         }, false);
 
         // Unmute the video after it starts playing
