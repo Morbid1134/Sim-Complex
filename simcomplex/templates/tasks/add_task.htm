@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>What to add</title>
 
-
     <!-- Add these to the header  -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
     <style>
@@ -25,22 +24,32 @@
         color: red;
         }
     </style>
+    <!-- -----------------------  -->
 </head>
 <body>
-
-
     <!-- Add this element into the body  -->
     <div id="connection">Not Connected</div>
+    <!-- ------------------------------  -->
 
     <script>
+        // This should be the gameWin function
+        // Yes, you use the same gameWin function
+        // You don't need to change anything
 		function gameWin() {
-            // Add this into the gameWin function 
             alert("You WIN!")
             var filename = window.location.pathname.split('/').pop().replace('.html', '');
             socket.emit('taskComplete', filename);
             const terminal_url = window.location.origin + "/terminal";
             window.location.href = terminal_url;
 		}
+
+        // If there is a gameLost function,
+        // set it to this:
+        function gameLost() {
+            alert("Game Lost!")
+            const terminal_url = window.location.origin + "/terminal";
+            window.location.href = terminal_url;
+        }
     </script>
 
 
@@ -63,7 +72,6 @@
             status.style.borderColor = "red";
         });
     </script>
-
-
+    <!-- At the end, but still inside the body  -->
 </body>
 </html>
