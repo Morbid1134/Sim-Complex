@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1942 Game</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+    <style>
+        #connection {
+        border: 5px solid red;
+        width: 80vw;
+        font-size: 5vw;
+        height: 5vh;
+        position: absolute;
+        bottom: 5vh; /* Positioned at the bottom */
+        left: 50%;
+        transform: translateX(-50%);
+        border-radius: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: red;
+        }
+    </style>
+
+    <style type="text/css">
+        body {
+            background-color: black;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        #container {
+            background: url('{{ url_for("static", filename="img/1942_background.jpg") }}');
+            width: 1000px;
+            height: 550px;
+            position: relative;
+        }
+
+        #hero {
+            background: url('{{ url_for("static", filename="img/1942.gif") }}');
+            background-position: -85px -180px;
+            width: 28px;
+            height: 28px;
+            position: absolute;
+        }
+
+        .enemy1 {
+            background: url('{{ url_for("static", filename="img/1942.gif") }}');
+            background-position: -30px -10px;
+            width: 28px;
+            height: 28px;
+            position: absolute;
+        }
+
+        .specialenemies1 {
+            background: url('{{ url_for("static", filename="img/1942.gif") }}');
+            background-position: -150px -10px;
+            width: 25px;
+            height: 17px;
+            position: absolute;
+        }
+
+        .bullets {
+            background: url('{{ url_for("static", filename="img/1942.gif") }}');
+            background-position: -185px -400px;
+            width: 18px;
+            height: 18px;
+            position: absolute;
+        }
+
+        .explosions1 {
+            background: url('{{ url_for("static", filename="img/1942_explosion.gif") }}');
+            background-size: cover;
+            width: 20px;
+            height: 20px;
+            position: absolute;
+            top: 650px;
+            left: 50px;
+            z-index: 9999999999;
+        }
+
+        #score {
+            position: absolute;
+            border: 10px solid red;
+            bottom: 650px;
+            left: 1375px;
+            background-color: white;
+            padding: 10px;
+            font-size: 30px;
+            font-family: Arial;
+        }
+    </style>
+</head>
+<body>
+<div id='container'>
+
+    <div id='hero'></div>
+
+    <div id='enemies'></div>
+
+    <div id="specialenemies"></div>
+
+    <div id="explosions"></div>
+
+    <div id='bullets'>
+        <div class='bullet' style='top:150px; left:200px;'></div>
+        <div class='bullet' style='top:250px; left:200px;'></div>
+        <div class='bullet' style='top:350px; left:200px;'></div>
+        <div class='bullet' style='top:450px; left:200px;'></div>
+    </div>
+</div>
+
+<div id='score'>0</div>
+
+<div id="connection">Not Connected</div>
+<script>
+	function gameWin() {
+            alert("You WIN!")
+            var filename = window.location.pathname.split('/').pop().replace('.html', '');
+            socket.emit('taskComplete', filename);
+            const terminal_url = window.location.origin + "/terminal";
+            window.location.href = terminal_url;
+	}
+
+	function gameLost() {
+            alert("Game Lost!")
+            const terminal_url = window.location.origin + "/terminal";
+            window.location.href = terminal_url;
+	}
+
+    var hero = {
+        x: 300,
+        y: 500
+    }
+
+    // Modify initial positions for enemies
+    var enemies = [
+        { x: 900, y: 900 },
+        { x: 900, y: 900 },
+        { x: 900, y: 900 },
+        { x: 900, y: 900 },
+        { x: 900, y: 900 },
+        { x: 900, y: 900 },
+        { x: 900, y: 900 },
+    ];
+
+    var specialenemies = [
+        { x: 400, y: 1 },
+        { x: 100, y: 30 },
+        { x: 700, y: 80 }
+    ]
+    var bullets = [];
+    var score = 0;
+    var explosion_i = 0;
+    
+//    DISPLAY ENEMIES
+    function displayEnemies(){
+        var output = '';
+        for(var i=0; i<enemies.length; i++){
+            output += "<div class='enemy1' style='top:"+enemies[i].y+"px; left:"+enemies[i].x+"px;'></div>";
+        }
+        document.getElementById('enemies').innerHTML = output;
+    }
+//    DISPLAY Special ENEMIES
+    function displaySpecialEnemies(){
+        var output = '';
+        for(var i=0; i<specialenemies.length; i++){
+            output += "<div class='specialenemies1' style='top:"+specialenemies[i].y+"px; left:"+specialenemies[i].x+"px;'></div>";
+        }
+        document.getElementById('specialenemies').innerHTML = output;
+    }
+    
+//    DESPLAY HERO
+    function displayHero(){
+        document.getElementById('hero').style['top'] = hero.y + "px";
+        document.getElementById('hero').style['left'] = hero.x + "px";
+    }
+    
+//    MOVE ENEMIES
+    function moveEnemies(){
+        for(var i=0; i<enemies.length; i++){
+            enemies[i].y += 5;
+            
+            if(enemies[i].y > 540){
+                enemies[i].y = 0;
+                enemies[i].x = Math.random()*700;
+            }
+        }
+    }
+    
+//    MOVE Special ENEMIES
+    function moveSpecialEnemies(){
+        for(var i=0; i<specialenemies.length; i++){
+            specialenemies[i].y += 7;
+            
+            if(specialenemies[i].y > 540){
+                specialenemies[i].y = 0;
+                specialenemies[i].x = Math.random()*700;
+            }
+        }
+    }
+    
+    function displayBullets(){
+        var output = '';
+        for(var i=0; i<bullets.length; i++){
+            output += "<div class='bullets' style='top:"+bullets[i].y+"px; left:"+bullets[i].x+"px;'></div>";
+        }
+        document.getElementById('bullets').innerHTML = output;
+    }
+    
+    function moveBullets(){
+        for(var i=0; i<bullets.length; i++){
+            bullets[i].y -= 5;
+            
+            if(bullets[i].y<0){
+                bullets[i] = bullets[bullets.length-1];
+                bullets.pop();
+            }
+        }
+    }
+    
+//    HERO MOVEMENT
+    document.onkeydown = function(a) {
+        if(a.keyCode == 37){
+            hero.x -= 15;
+        }else if(a.keyCode == 39){
+            hero.x +=15;
+        }else if(a.keyCode == 38){
+            hero.y -=15;
+        }else if(a.keyCode == 40){
+            hero.y +=15;
+        } else if(a.keyCode == 32){
+            bullets.push({x: hero.x+8, y: hero.y-15});
+        }
+        displayHero();
+    }
+
+//    EXPLOSIONS
+    function createExplosion(){
+        enemies[i]
+    }
+    
+    
+//    COLLISION DETECTION
+//    ENEMIES & BULLETS
+    function detectCollision(){
+        for(var i=0; i<bullets.length; i++){
+            for(var j=0; j<enemies.length; j++){
+                if( Math.abs(bullets[i].x - enemies[j].x) < 10 && Math.abs(bullets[i].y - enemies[j].y) < 10){
+                    score += 10;
+					if (score >= 100) {
+					gameWin();
+					}
+                    var mydiv = document.createElement("div");
+                    mydiv.style.top = enemies[j].y+"px";
+                    mydiv.style.left = enemies[j].x+"px";
+                    mydiv.className = "explosions1";
+                    
+                    document.getElementById('explosions').appendChild(mydiv);
+                    
+                    setTimeout(function() {
+                        mydiv.parentNode.removeChild(mydiv);
+                    }, 800);
+                    enemies.splice(j, 1);
+                }
+            }
+            for(var j=0; j<specialenemies.length; j++){
+                if( Math.abs(bullets[i].x - specialenemies[j].x) < 10 && Math.abs(bullets[i].y - specialenemies[j].y) < 10){
+                    score += 10;
+                    var mydiv = document.createElement("div");
+                    mydiv.style.top = specialenemies[j].y+"px";
+                    mydiv.style.left = specialenemies[j].x+"px";
+                    mydiv.className = "explosions1";
+
+                    document.getElementById('explosions').appendChild(mydiv);
+
+                    setTimeout(function() {
+                        mydiv.parentNode.removeChild(mydiv);
+                    }, 800);
+                    specialenemies.splice(j, 1);
+                }
+            }
+        }
+//        ENEMIES & HERO
+        for(var i=0; i<enemies.length; i++){
+            if(Math.abs(enemies[i].x - hero.x) < 10 && Math.abs(enemies[i].y - hero.y) < 10){
+                score -= 500;
+				gameLost();
+                var mydiv = document.createElement("div");
+                mydiv.style.top = enemies[i].y+"px";
+                mydiv.style.left = enemies[i].x+"px";
+                mydiv.className = "explosions1";
+
+                document.getElementById('explosions').appendChild(mydiv);
+
+                setTimeout(function() {
+                    mydiv.parentNode.removeChild(mydiv);
+                }, 800);
+                enemies.splice(i, 1);
+                document.getElementById('hero').remove();
+                stopGame();
+            }
+        }
+//        SPECIAL ENEMIES & HERO
+        for(var i=0; i<specialenemies.length; i++){
+            if(Math.abs(specialenemies[i].x - hero.x) < 10 && Math.abs(specialenemies[i].y - hero.y) < 10){
+                score -= 500;
+                var mydiv = document.createElement("div");
+                mydiv.style.top = specialenemies[i].y+"px";
+                mydiv.style.left = specialenemies[i].x+"px";
+                mydiv.className = "explosions1";
+
+                document.getElementById('explosions').appendChild(mydiv);
+
+                setTimeout(function() {
+                    mydiv.parentNode.removeChild(mydiv);
+                }, 800);
+                specialenemies.splice(i, 1);
+                document.getElementById('hero').remove();
+                stopGame();
+            }
+        }
+    }
+    
+    function explosionRemoval(){
+        return;
+        if(explosions.length>0){
+            var elem = document.getElementById(explosions[explosions.length-1]);
+            console.log(explosions);
+            console.log(elem);
+            explosions.pop();
+            setTimeout(function(){ elem.remove(); }, 800);
+        }
+    }
+    
+    function displayScore(){
+        document.getElementById('score').innerHTML = score;
+    }
+    
+    function gameLoop(){
+        displayHero();
+        moveEnemies();
+        moveSpecialEnemies();
+        displayEnemies();   
+        displaySpecialEnemies();
+        moveBullets();
+        displayBullets();
+        detectCollision();
+        displayScore();
+        explosionRemoval();
+    }
+
+    var myGame = setInterval(gameLoop, 30);
+
+    function stopGame() {
+        clearInterval(myGame);
+    }
+</script>
+
+<script>
+    const socket = io.connect(window.location.origin);
+    const status = document.getElementById('connection')
+
+    socket.on('connect', function() {
+        console.log('Connected to server');
+        status.innerHTML = "Connected";
+        status.style.color = "green";
+        status.style.borderColor = "green";
+    });
+
+    socket.on('disconnect', function() {
+        console.log('Disconnected from server');
+        status.innerHTML = "Not Connected";
+        status.style.color = "red";
+        status.style.borderColor = "red";
+    });
+</script>
+</body>
+</html>
