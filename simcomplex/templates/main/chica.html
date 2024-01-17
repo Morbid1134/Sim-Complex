@@ -10,7 +10,7 @@
 <body>
     <div class="content-container">
         <h1>Chica</h1>
-        <div id="countdown" onclick="startTimer()">
+        <div id="countdown">
             <span id="minutes">00</span> : <span id="seconds">00</span>
         </div>
         <h2>You Skip Camera One</h2>
@@ -72,9 +72,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function handleEnd() {
         countdown.classList.remove('active');
-        if (!isTimerRunning) {
-            startTimer(10, pingEnd);
-        }
+    }
+    
+    var isRunning = "{{ isRunning }}"
+    console.log(isRunning)
+    if (isRunning === "True") {
+        gameRun();
     }
 });
 const socket = io.connect(window.location.origin);
@@ -94,10 +97,26 @@ socket.on('disconnect', function() {
     status.style.borderColor = "red";
 });
 
-const move_audio = new Audio('{{ url_for("static", filename="audio/Move.mp3") }}');
-const stop_audio = new Audio('{{ url_for("static", filename="audio/Stop.mp3") }}');
-const task_complete = new Audio('{{ url_for("static", filename="audio/CompletedTask.mp3") }}');
-const game_over = new Audio('{{ url_for("static", filename="audio/Game_Over.mp3") }}');
+const move_audio = new Audio();
+move_audio.src = '{{ url_for("static", filename="audio/Move.mp3") }}';
+move_audio.preload = 'auto';
+
+const stop_audio = new Audio();
+stop_audio.src = '{{ url_for("static", filename="audio/Stop.mp3") }}';
+stop_audio.preload = 'auto';
+
+const task_complete = new Audio();
+task_complete.src = '{{ url_for("static", filename="audio/CompletedTask.mp3") }}';
+task_complete.preload = 'auto';
+
+const game_over = new Audio();
+game_over.src = '{{ url_for("static", filename="audio/Game_Over.mp3") }}';
+game_over.preload = 'auto';
+
+const pause_audio = new Audio();
+pause_audio.src = '{{ url_for("static", filename="audio/paused.mp3") }}';
+pause_audio.preload = 'auto';
+
 
 socket.on('taskCompleted', function() {
     task_complete.play()
@@ -134,6 +153,28 @@ function pingStart() {
 
 function randomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+socket.on('gameStart', function() {
+    gameRun();
+});
+
+socket.on('gamePause', function() {
+    // Set isMoving to False
+    socket.emit('pingStart', 'chica');
+    // Stop timer
+    clearInterval(timerInterval);
+    isTimerRunning = false;
+    document.getElementById("minutes").innerText = String("0").padStart(2, "0");
+    document.getElementById("seconds").innerText = String("0").padStart(2, "0");
+    pause_audio.play()
+});
+
+function gameRun() {
+    socket.emit('pingStart', 'chica');
+    // Turn on clock
+    stop_audio.play();
+    startTimer(10, pingEnd);
 }
 
         

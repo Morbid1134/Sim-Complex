@@ -16,9 +16,9 @@
                         <form action="settings" method="post" class="text-center">
                             <div class="row gutters align-items-center">
                                 <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 text-left">
-                                    <h6 class="mb-3 text-primary">Reset Game</h6>
+                                    <h6 class="mb-3 text-primary">Game</h6>
                                 </div>
-                                <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-12">
+                                <div class="col-xl-11 col-lg-11 col-md-11 col-sm-11 col-12">
                                     <div class="input-group">
                                         <div class="input-group-prepend">
                                             <span class="input-group-text custom-label">Number of Tasks</span>
@@ -26,7 +26,12 @@
                                         <input type="number" class="form-control" name="number-of-tasks" id="number-of-tasks" min="0" max="100" value="{{ lenTasks }}">
                                     </div>
                                 </div>
-                                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                                    {% if isRunning == False %}
+                                    <button type="submit" id="submit" name="start-game" class="btn btn-primary">Start Game</button>
+                                    {% else %}
+                                    <button type="submit" id="submit" name="pause-game" class="btn btn-primary">Pause Game</button>
+                                    {% endif %}
                                     <button type="submit" id="submit" name="reset-game" class="btn btn-primary">Reset Game</button>
                                 </div>
                             </div>
@@ -124,14 +129,28 @@
                         <form action="settings" method="post">
                             <div class="row gutters">
                                 <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                                    <h6 class="mb-3 text-primary">All Tasks</h6>
+                                </div>
+                                {% for i in range(0, lenTaskList) %}
+                                <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
+                                    <div class="form-group">
+                                        <!-- Toggle Button Here -->
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input" id="{{ taskList[i][0] }}" name="{{ taskList[i][0] }}" {% if taskList[i][1] == True %}checked{% endif %}>
+                                            <label class="custom-control-label" for="{{ taskList[i][0] }}">{{taskList[i][0]}}</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <div class="row gutters">
+                                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
                                     <h6 class="mb-3 text-primary">Tasks</h6>
                                 </div>
                                 {% for i in range(0, lenTasks) %}
                                 <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
-                                    <div class="form-group">
                                         <label>Task {{i+1}} - {{tasks[i][1]}}</label>
                                         <h6 class="mb-3 text-secondary">{{tasks[i][0]}}</h6>
-                                    </div>
                                 </div>
                                 {% endfor %}
                             </div>

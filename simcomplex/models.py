@@ -9,6 +9,8 @@ class Game():
         self.IP = dict([(str(key), "http://10.0.0.0:8080/video") for key in range(1,10)])
         self.CAMERA_PATH = "camera_ips.json"
         self.initialize_cameras()
+
+        self.isRunning = False
     
         self.freddy = Animatronic()
         self.chica = Animatronic()
@@ -39,7 +41,7 @@ class Game():
         
     def reset_tasks(self):
         number_of_tasks = self.guard.number_of_tasks
-        self.guard = Terminal(int(number_of_tasks))
+        self.guard.tasks = self.guard.get_random_tasks(number_of_tasks)
 
 
 class Animatronic():
@@ -51,6 +53,7 @@ class Animatronic():
 
 class Terminal():
     def __init__(self, number_of_tasks=9):
+        
         # Initial terminal output containing system information
         self.output = ["Linux pi-hole 6.1.21-v7+ #1642 SMP Mon Apr  3 17:20:52 BST 2023 armv7l",
                         "", "The programs included with the Debian GNU/Linux system are free software;",
@@ -58,13 +61,16 @@ class Terminal():
                         "individual files in /usr/share/doc/*/copyright.", "",
                         "Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent",
                         "permitted by applicable law.", "Last login: Sun Dec 17 12:12:06 2023 from 10.0.0.59"]
+        task_list=["enduro", "task_2048", "loading", "maze", "osu", "bin_sorting", "frogger", "memory_pattern", "missle_command", "pong", "snake", "tetris", "typing_test", "breakout"]
+        self.task_list = dict([(task, True) for task in task_list])
         self.number_of_tasks = number_of_tasks
-        self.tasks = Terminal.get_random_tasks(self.number_of_tasks)
+        self.tasks = Terminal.get_random_tasks(self, self.number_of_tasks)
         self.selected = None
     
         # Function to randomly select n tasks with no repeats
-    def get_random_tasks(n):
-        tasks = ["enduro", "task_2048", "loading", "maze", "osu", "bin_sorting", "frogger", "memory_pattern", "missle_command", "pong", "snake", "tetris", "typing_test", "breakout"]
+    def get_random_tasks(self, n):
+        tasks = [task for task in self.task_list if self.task_list[task] == True]
+        print(tasks)
         
         # Shuffle the tasks to ensure randomness
         random.shuffle(tasks)
