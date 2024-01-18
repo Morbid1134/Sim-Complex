@@ -41,8 +41,6 @@ class Game():
         self.freddy = Animatronic()
         self.chica = Animatronic()
         self.bonny = Animatronic()
-
-
         
     def reset_tasks(self):
         number_of_tasks = self.guard.number_of_tasks
